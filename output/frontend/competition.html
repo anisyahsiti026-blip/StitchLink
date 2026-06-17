@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kompetisi - StitchLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gold-bg { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .silver-bg { background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%); }
+        .bronze-bg { background: linear-gradient(135deg, #cd7c3a 0%, #a16207 100%); }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+        .fade-in { animation: fadeIn .45s ease-out; }
+        @keyframes countdown { from{stroke-dashoffset:0} to{stroke-dashoffset:283} }
+        .card-hover { transition: all .3s; }
+        .card-hover:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(102,126,234,.18); }
+        .tab-btn.active { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
+        .entry-card:hover .vote-overlay { opacity:1; }
+        .vote-overlay { opacity:0; transition: opacity .2s; }
+        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
+        .pulse-once { animation: pulse .3s ease-in-out; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+
+<!-- Navbar -->
+<nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-5">
+            <a href="dashboard.html" class="flex items-center space-x-2">
+                <div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                    </svg>
+                </div>
+                <span class="text-lg font-bold hidden sm:block">StitchLink</span>
+            </a>
+            <div class="hidden md:flex space-x-1">
+                <a href="dashboard.html"    class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Home</a>
+                <a href="messages.html"     class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Chat</a>
+                <a href="competition.html"  class="px-4 py-2 rounded-lg bg-slate-800 text-white font-medium">Kompetisi</a>
+                <a href="discussion.html"   class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Diskusi</a>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="openCreateComp()" id="createCompBtn"
+                    class="hidden sm:flex items-center space-x-2 px-4 py-2 gradient-bg rounded-lg font-medium hover:opacity-90 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Buat Kompetisi</span>
+            </button>
+            <a href="profile.html">
+                <img id="navAvatar" src="https://ui-avatars.com/api/?name=U&background=667eea&color=fff"
+                     class="w-8 h-8 rounded-full border-2 border-purple-500 object-cover">
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="bg-gradient-to-br from-yellow-900/20 via-purple-900/20 to-slate-900 border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-10 text-center">
+        <div class="inline-flex items-center space-x-2 bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+            <span>🏆</span><span>Kompetisi Jahit</span>
+        </div>
+        <h1 class="text-4xl font-extrabold mb-3">Tunjukkan <span class="gradient-text">Keahlian Terbaik</span> Anda</h1>
+        <p class="text-slate-400 text-lg max-w-xl mx-auto mb-6">Ikuti kompetisi, dapatkan suara dari komunitas, dan raih posisi teratas leaderboard.</p>
+        <!-- Tabs -->
+        <div class="inline-flex bg-slate-800 rounded-xl p-1 space-x-1">
+            <button onclick="switchTab('ongoing')" id="tab-ongoing" class="tab-btn active px-5 py-2 rounded-lg text-sm font-semibold transition-all">🔥 Berlangsung</button>
+            <button onclick="switchTab('upcoming')" id="tab-upcoming" class="tab-btn px-5 py-2 rounded-lg text-sm font-semibold text-slate-400 transition-all">⏳ Akan Datang</button>
+            <button onclick="switchTab('ended')" id="tab-ended" class="tab-btn px-5 py-2 rounded-lg text-sm font-semibold text-slate-400 transition-all">✅ Selesai</button>
+        </div>
+    </div>
+</section>
+
+<!-- Content -->
+<main class="max-w-6xl mx-auto px-4 py-8">
+    <div id="compGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="col-span-full text-center py-16">
+            <div class="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-slate-400 mt-4">Memuat kompetisi...</p>
+        </div>
+    </div>
+</main>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- Create Competition Modal -->
+<div id="createCompModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-7 w-full max-w-lg border border-slate-700 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-xl font-bold">🏆 Buat Kompetisi Baru</h3>
+            <button onclick="closeCreateComp()" class="p-2 hover:bg-slate-700 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <form id="createCompForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Nama Kompetisi *</label>
+                <input type="text" id="compTitle" required placeholder="cth: Lomba Kebaya Terbaik 2025"
+                       class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Deskripsi & Tema *</label>
+                <textarea id="compDesc" required rows="3" placeholder="Jelaskan tema, peraturan, dan kriteria penilaian..."
+                          class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Kategori</label>
+                    <select id="compCategory" class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="kebaya">👗 Kebaya</option>
+                        <option value="batik">🎨 Batik</option>
+                        <option value="casual">👕 Casual</option>
+                        <option value="pengantin">💍 Pengantin</option>
+                        <option value="anak">👶 Pakaian Anak</option>
+                        <option value="bebas">✨ Bebas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Hadiah</label>
+                    <input type="text" id="compPrize" placeholder="cth: Rp 500.000"
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Mulai *</label>
+                    <input type="datetime-local" id="compStart" required
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-1">Selesai *</label>
+                    <input type="datetime-local" id="compEnd" required
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Banner Kompetisi</label>
+                <input type="file" id="compBanner" accept="image/*"
+                       class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-purple-500 file:text-white file:cursor-pointer hover:file:bg-purple-600 text-sm">
+            </div>
+            <div id="compBannerPreview" class="hidden"><img id="compBannerImg" class="w-full rounded-xl border border-slate-700 max-h-40 object-cover"></div>
+            <button type="submit" id="createCompBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                Buat Kompetisi
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Competition Detail Modal -->
+<div id="compDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-slate-900 rounded-2xl w-full max-w-3xl border border-slate-700 max-h-[92vh] overflow-y-auto">
+        <!-- Banner -->
+        <div id="detailBanner" class="w-full h-44 bg-gradient-to-br from-purple-900 to-slate-800 rounded-t-2xl flex items-center justify-center relative overflow-hidden">
+            <span class="text-6xl">🏆</span>
+            <button onclick="closeCompDetail()" class="absolute top-3 right-3 p-2 bg-black/50 rounded-full hover:bg-black/70 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-2">
+                <div>
+                    <span id="detailCategory" class="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30"></span>
+                    <h2 id="detailTitle" class="text-2xl font-bold mt-2"></h2>
+                </div>
+                <div id="detailPrizeBadge" class="hidden text-right">
+                    <p class="text-xs text-slate-400">Hadiah</p>
+                    <p id="detailPrize" class="font-bold text-yellow-400"></p>
+                </div>
+            </div>
+            <p id="detailDesc" class="text-slate-300 text-sm mb-4 leading-relaxed"></p>
+            <div class="flex items-center space-x-4 text-sm text-slate-400 mb-5">
+                <span>📅 <span id="detailEnd"></span></span>
+                <span>👤 Oleh <span id="detailOrganizer" class="text-white"></span></span>
+                <span>🎯 <span id="detailEntryCount">0</span> peserta</span>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex gap-3 mb-6" id="detailActions"></div>
+
+            <!-- Tabs -->
+            <div class="flex space-x-1 mb-5 bg-slate-800 rounded-xl p-1">
+                <button onclick="detailTab('entries')" id="dtab-entries" class="tab-btn active flex-1 py-2 rounded-lg text-sm font-semibold transition-all">🖼️ Karya Peserta</button>
+                <button onclick="detailTab('leaderboard')" id="dtab-leaderboard" class="tab-btn flex-1 py-2 rounded-lg text-sm font-semibold text-slate-400 transition-all">🏅 Leaderboard</button>
+            </div>
+
+            <!-- Entries -->
+            <div id="detail-entries">
+                <div id="entriesGrid" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div id="detail-leaderboard" class="hidden">
+                <div id="leaderboardList" class="space-y-2"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submit Entry Modal -->
+<div id="submitEntryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-md border border-slate-700">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold">📸 Kirim Karya</h3>
+            <button onclick="closeSubmitEntry()" class="p-2 hover:bg-slate-700 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <form id="submitEntryForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Judul Karya *</label>
+                <input type="text" id="entryTitle" required placeholder="Beri nama karya Anda"
+                       class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Deskripsi</label>
+                <textarea id="entryDesc" rows="2" placeholder="Ceritakan proses pembuatan..."
+                          class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Foto Karya *</label>
+                <input type="file" id="entryImage" accept="image/*" required
+                       class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white file:mr-4 file:py-1.5 file:px-4 file:rounded-lg file:border-0 file:bg-purple-500 file:text-white file:cursor-pointer hover:file:bg-purple-600 text-sm">
+                <div id="entryImgPreview" class="hidden mt-2"><img id="entryImgEl" class="w-full rounded-xl border border-slate-700 max-h-48 object-cover"></div>
+            </div>
+            <div id="entryUploadProgress" class="hidden">
+                <div class="w-full bg-slate-700 rounded-full h-2">
+                    <div id="entryProgressBar" class="gradient-bg h-2 rounded-full transition-all" style="width:0%"></div>
+                </div>
+            </div>
+            <button type="submit" id="submitEntryBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                Kirim Karya
+            </button>
+        </form>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import {
+    getFirestore, collection, addDoc, getDocs, getDoc,
+    doc, updateDoc, deleteDoc, query, where, orderBy,
+    arrayUnion, arrayRemove, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const cfg = {
+    apiKey:"AIzaSyA8zCy3PBatjnCrEpLEZsfm8CeCYtssZI8",
+    authDomain:"nisa-stitchlink.firebaseapp.com",
+    projectId:"nisa-stitchlink",
+    storageBucket:"nisa-stitchlink.firebasestorage.app",
+    messagingSenderId:"226715367934",
+    appId:"1:226715367934:web:a444fa37eaf05878cd68af"
+};
+const app  = initializeApp(cfg);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+const CLOUD_NAME   = 'dmvaghjws';
+const UPLOAD_PRESET = 'tailor_community_uploads';
+
+let me = null;
+let allComps = [];
+let currentComp = null;
+let currentTab = 'ongoing';
+
+// ── Auth ───────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+    if (!user) { location.href='login.html'; return; }
+    me = user;
+    document.getElementById('navAvatar').src = user.photoURL ||
+        `https://ui-avatars.com/api/?name=${enc(user.displayName||'U')}&background=667eea&color=fff`;
+    loadCompetitions();
+});
+
+// ── Load & Render ──────────────────────────────────
+async function loadCompetitions() {
+    try {
+        const snap = await getDocs(query(collection(db,'competitions'), orderBy('createdAt','desc')));
+        allComps = snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderComps();
+    } catch(e) {
+        document.getElementById('compGrid').innerHTML =
+            `<p class="col-span-full text-center text-red-400 py-12">Gagal memuat: ${e.message}</p>`;
+    }
+}
+
+function renderComps() {
+    const now = Date.now();
+    let filtered = allComps.filter(c => {
+        const start = new Date(c.startDate).getTime();
+        const end   = new Date(c.endDate).getTime();
+        if (currentTab==='ongoing')  return start<=now && end>=now;
+        if (currentTab==='upcoming') return start>now;
+        if (currentTab==='ended')    return end<now;
+        return true;
+    });
+    const grid = document.getElementById('compGrid');
+    if (!filtered.length) {
+        const msgs = { ongoing:'Belum ada kompetisi yang sedang berlangsung.', upcoming:'Belum ada kompetisi mendatang.', ended:'Belum ada kompetisi yang selesai.' };
+        grid.innerHTML = `<div class="col-span-full text-center py-16">
+            <p class="text-5xl mb-4">🏆</p>
+            <p class="text-xl text-slate-400 font-medium">${msgs[currentTab]}</p>
+            <button onclick="openCreateComp()" class="mt-5 px-6 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">+ Buat Kompetisi</button>
+        </div>`;
+        return;
+    }
+    grid.innerHTML = filtered.map(c => compCard(c)).join('');
+}
+
+function compCard(c) {
+    const now = Date.now();
+    const end  = new Date(c.endDate).getTime();
+    const start= new Date(c.startDate).getTime();
+    const isOngoing = start<=now && end>=now;
+    const isEnded   = end<now;
+    const entries   = c.entries?.length||0;
+    const isJoined  = c.entries?.some(e=>e.userId===me?.uid);
+
+    const catEmoji = {kebaya:'👗',batik:'🎨',casual:'👕',pengantin:'💍',anak:'👶',bebas:'✨'};
+    const timeLeft = isOngoing ? fmtCountdown(end-now) : '';
+
+    return `
+    <div class="card-hover bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden fade-in cursor-pointer" onclick="openCompDetail('${c.id}')">
+        <div class="relative h-40 ${c.bannerUrl ? '' : 'bg-gradient-to-br from-purple-900/60 to-slate-800'} overflow-hidden">
+            ${c.bannerUrl ? `<img src="${c.bannerUrl}" class="w-full h-full object-cover">` : `<div class="w-full h-full flex items-center justify-center text-5xl">${catEmoji[c.category]||'🏆'}</div>`}
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent"></div>
+            ${isOngoing ? `<span class="absolute top-3 left-3 bg-green-500 text-white text-xs px-2.5 py-1 rounded-full font-semibold animate-pulse">● LIVE</span>` : ''}
+            ${isEnded   ? `<span class="absolute top-3 left-3 bg-slate-600 text-white text-xs px-2.5 py-1 rounded-full font-semibold">SELESAI</span>` : ''}
+            ${!isOngoing&&!isEnded ? `<span class="absolute top-3 left-3 bg-blue-500 text-white text-xs px-2.5 py-1 rounded-full font-semibold">SEGERA</span>` : ''}
+            ${c.prize ? `<span class="absolute top-3 right-3 bg-yellow-500/90 text-slate-900 text-xs px-2.5 py-1 rounded-full font-bold">🎁 ${c.prize}</span>` : ''}
+        </div>
+        <div class="p-5">
+            <div class="flex items-center space-x-2 mb-2">
+                <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full">${catEmoji[c.category]||'✨'} ${c.category||'Umum'}</span>
+            </div>
+            <h3 class="font-bold text-lg mb-1 line-clamp-2 leading-tight">${esc(c.title)}</h3>
+            <p class="text-slate-400 text-sm line-clamp-2 mb-4">${esc(c.description||'')}</p>
+            <div class="flex items-center justify-between text-xs text-slate-500">
+                <span>🎯 ${entries} peserta</span>
+                ${isOngoing ? `<span class="text-orange-400 font-medium">⏱ ${timeLeft}</span>` : `<span>📅 ${fmtDate(c.endDate)}</span>`}
+            </div>
+            ${isJoined ? `<div class="mt-3 text-center py-2 bg-green-500/10 text-green-400 border border-green-500/20 rounded-lg text-xs font-semibold">✓ Sudah Ikut</div>` : ''}
+        </div>
+    </div>`;
+}
+
+// ── Competition Detail ─────────────────────────────
+window.openCompDetail = async (compId) => {
+    currentComp = allComps.find(c=>c.id===compId);
+    if (!currentComp) return;
+    const c = currentComp;
+    const now = Date.now();
+    const isOngoing = new Date(c.startDate).getTime()<=now && new Date(c.endDate).getTime()>=now;
+    const isOwner   = c.createdBy===me.uid;
+    const isJoined  = c.entries?.some(e=>e.userId===me.uid);
+
+    // Header
+    const banner = document.getElementById('detailBanner');
+    if (c.bannerUrl) {
+        banner.innerHTML = `<img src="${c.bannerUrl}" class="w-full h-full object-cover">
+            <button onclick="closeCompDetail()" class="absolute top-3 right-3 p-2 bg-black/50 rounded-full hover:bg-black/70"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>`;
+    }
+    const catEmoji = {kebaya:'👗',batik:'🎨',casual:'👕',pengantin:'💍',anak:'👶',bebas:'✨'};
+    document.getElementById('detailCategory').textContent  = `${catEmoji[c.category]||'✨'} ${c.category||'Umum'}`;
+    document.getElementById('detailTitle').textContent     = c.title;
+    document.getElementById('detailDesc').textContent      = c.description||'';
+    document.getElementById('detailEnd').textContent       = `Berakhir ${fmtDate(c.endDate)}`;
+    document.getElementById('detailOrganizer').textContent = c.creatorName||'Admin';
+    document.getElementById('detailEntryCount').textContent= c.entries?.length||0;
+
+    if (c.prize) {
+        document.getElementById('detailPrizeBadge').classList.remove('hidden');
+        document.getElementById('detailPrize').textContent = c.prize;
+    } else {
+        document.getElementById('detailPrizeBadge').classList.add('hidden');
+    }
+
+    // Action buttons
+    const actions = document.getElementById('detailActions');
+    actions.innerHTML = '';
+    if (isOngoing && !isJoined && !isOwner) {
+        actions.innerHTML = `<button onclick="openSubmitEntry()" class="flex-1 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all text-center">📸 Ikut Kompetisi</button>`;
+    } else if (isJoined) {
+        actions.innerHTML = `<div class="flex-1 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-xl font-semibold text-center">✓ Karya Sudah Dikirim</div>`;
+    }
+    if (isOwner) {
+        actions.innerHTML += `<button onclick="deleteComp('${c.id}')" class="px-4 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl font-semibold hover:bg-red-500/20 transition-all text-sm">🗑 Hapus</button>`;
+    }
+
+    renderEntries();
+    document.getElementById('compDetailModal').classList.remove('hidden');
+};
+
+window.closeCompDetail = () => {
+    document.getElementById('compDetailModal').classList.add('hidden');
+    currentComp = null;
+};
+
+// ── Entries & Voting ───────────────────────────────
+function renderEntries() {
+    const entries = currentComp?.entries||[];
+    const grid = document.getElementById('entriesGrid');
+    if (!entries.length) {
+        grid.innerHTML = '<p class="col-span-full text-center text-slate-500 py-8 text-sm">Belum ada karya yang masuk.</p>';
+        return;
+    }
+    const sorted = [...entries].sort((a,b)=>(b.votes?.length||0)-(a.votes?.length||0));
+    grid.innerHTML = sorted.map((e,i) => {
+        const hasVoted = e.votes?.includes(me.uid);
+        const isOwn    = e.userId === me.uid;
+        const now = Date.now();
+        const isOngoing = new Date(currentComp.startDate).getTime()<=now && new Date(currentComp.endDate).getTime()>=now;
+        return `
+        <div class="entry-card relative rounded-xl overflow-hidden border border-slate-700 bg-slate-800 group">
+            ${i===0?'<span class="absolute top-2 left-2 z-10 text-lg">🥇</span>':''}
+            ${i===1?'<span class="absolute top-2 left-2 z-10 text-lg">🥈</span>':''}
+            ${i===2?'<span class="absolute top-2 left-2 z-10 text-lg">🥉</span>':''}
+            ${e.imageUrl?`<img src="${e.imageUrl}" class="w-full h-36 object-cover">`:`<div class="w-full h-36 bg-slate-700 flex items-center justify-center text-4xl">🧵</div>`}
+            <div class="vote-overlay absolute inset-0 bg-black/60 flex flex-col items-center justify-center space-y-2">
+                ${isOngoing && !isOwn ? `
+                <button onclick="toggleVote('${e.userId}','${currentComp.id}'); event.stopPropagation();"
+                        class="px-4 py-2 rounded-xl font-semibold text-sm transition-all ${hasVoted ? 'bg-red-500 text-white' : 'bg-white text-slate-900 hover:bg-purple-100'}">
+                    ${hasVoted ? '❤️ Sudah Vote' : '🤍 Vote'}
+                </button>` : ''}
+                <span class="text-white text-sm font-bold">❤️ ${e.votes?.length||0} suara</span>
+            </div>
+            <div class="p-3">
+                <p class="text-sm font-semibold truncate">${esc(e.title||'Karya')}</p>
+                <p class="text-xs text-slate-400 truncate">oleh ${esc(e.userName||'User')}</p>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+window.toggleVote = async (entryUserId, compId) => {
+    const compRef = doc(db,'competitions',compId);
+    const snap = await getDoc(compRef);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    const entries = [...(data.entries||[])];
+    const idx = entries.findIndex(e=>e.userId===entryUserId);
+    if (idx===-1) return;
+    const entry = {...entries[idx]};
+    const votes = entry.votes||[];
+    if (votes.includes(me.uid)) {
+        entry.votes = votes.filter(v=>v!==me.uid);
+    } else {
+        entry.votes = [...votes, me.uid];
+    }
+    entries[idx] = entry;
+    await updateDoc(compRef, {entries});
+    // Update local
+    currentComp.entries = entries;
+    allComps = allComps.map(c=>c.id===compId?{...c,entries}:c);
+    renderEntries();
+    renderLeaderboard();
+};
+
+// ── Leaderboard ────────────────────────────────────
+function renderLeaderboard() {
+    const entries = [...(currentComp?.entries||[])].sort((a,b)=>(b.votes?.length||0)-(a.votes?.length||0));
+    const list = document.getElementById('leaderboardList');
+    if (!entries.length) { list.innerHTML='<p class="text-center text-slate-500 py-8 text-sm">Belum ada peserta.</p>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    list.innerHTML = entries.map((e,i)=>`
+        <div class="flex items-center space-x-4 p-4 rounded-xl ${i<3 ? 'bg-slate-800 border border-slate-700' : 'bg-slate-800/50'}">
+            <span class="text-2xl w-8 text-center">${medals[i]||`#${i+1}`}</span>
+            ${e.imageUrl?`<img src="${e.imageUrl}" class="w-12 h-12 rounded-lg object-cover border border-slate-600">`:`<div class="w-12 h-12 rounded-lg bg-slate-700 flex items-center justify-center">🧵</div>`}
+            <div class="flex-1 min-w-0">
+                <p class="font-semibold truncate">${esc(e.title||'Karya')}</p>
+                <p class="text-sm text-slate-400 truncate">oleh ${esc(e.userName||'User')}</p>
+            </div>
+            <div class="text-right">
+                <p class="text-xl font-bold ${i===0?'text-yellow-400':i===1?'text-slate-300':i===2?'text-orange-400':'text-slate-400'}">${e.votes?.length||0}</p>
+                <p class="text-xs text-slate-500">suara</p>
+            </div>
+        </div>`).join('');
+}
+
+window.detailTab = (tab) => {
+    ['entries','leaderboard'].forEach(t=>{
+        document.getElementById(`detail-${t}`).classList.toggle('hidden', t!==tab);
+        document.getElementById(`dtab-${t}`).classList.toggle('active', t===tab);
+        document.getElementById(`dtab-${t}`).classList.toggle('text-slate-400', t!==tab);
+    });
+    if (tab==='leaderboard') renderLeaderboard();
+};
+
+// ── Submit Entry ───────────────────────────────────
+window.openSubmitEntry = () => {
+    document.getElementById('submitEntryModal').classList.remove('hidden');
+};
+window.closeSubmitEntry = () => {
+    document.getElementById('submitEntryModal').classList.add('hidden');
+    document.getElementById('submitEntryForm').reset();
+    document.getElementById('entryImgPreview').classList.add('hidden');
+};
+
+document.getElementById('entryImage').addEventListener('change', e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload=ev=>{
+        document.getElementById('entryImgEl').src=ev.target.result;
+        document.getElementById('entryImgPreview').classList.remove('hidden');
+    }; r.readAsDataURL(f);
+});
+
+document.getElementById('submitEntryForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const btn=document.getElementById('submitEntryBtn');
+    btn.disabled=true; btn.textContent='Mengirim...';
+    try {
+        const imgFile=document.getElementById('entryImage').files[0];
+        let imageUrl='';
+        if(imgFile) imageUrl=await uploadToCloudinary(imgFile,'entryProgressBar','entryUploadProgress');
+        const entry = {
+            userId:me.uid, userName:me.displayName||'User', userPhoto:me.photoURL||'',
+            title:document.getElementById('entryTitle').value,
+            description:document.getElementById('entryDesc').value,
+            imageUrl, votes:[], submittedAt: new Date().toISOString()
+        };
+        const compRef=doc(db,'competitions',currentComp.id);
+        await updateDoc(compRef,{entries:[...(currentComp.entries||[]),entry]});
+        currentComp.entries=[...(currentComp.entries||[]),entry];
+        allComps=allComps.map(c=>c.id===currentComp.id?currentComp:c);
+        document.getElementById('detailEntryCount').textContent=currentComp.entries.length;
+        closeSubmitEntry();
+        renderEntries();
+    } catch(err){ alert('Gagal mengirim karya: '+err.message); }
+    finally{ btn.disabled=false; btn.textContent='Kirim Karya'; }
+});
+
+// ── Create Competition ─────────────────────────────
+window.openCreateComp = ()=>{ document.getElementById('createCompModal').classList.remove('hidden'); };
+window.closeCreateComp= ()=>{ document.getElementById('createCompModal').classList.add('hidden'); document.getElementById('createCompForm').reset(); document.getElementById('compBannerPreview').classList.add('hidden'); };
+
+document.getElementById('compBanner').addEventListener('change', e=>{
+    const f=e.target.files[0]; if(!f) return;
+    const r=new FileReader(); r.onload=ev=>{
+        document.getElementById('compBannerImg').src=ev.target.result;
+        document.getElementById('compBannerPreview').classList.remove('hidden');
+    }; r.readAsDataURL(f);
+});
+
+document.getElementById('createCompForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const btn=document.getElementById('createCompBtn');
+    btn.disabled=true; btn.textContent='Membuat...';
+    try {
+        const bannerFile=document.getElementById('compBanner').files[0];
+        let bannerUrl='';
+        if(bannerFile) bannerUrl=await uploadToCloudinary(bannerFile);
+        const data={
+            title:document.getElementById('compTitle').value,
+            description:document.getElementById('compDesc').value,
+            category:document.getElementById('compCategory').value,
+            prize:document.getElementById('compPrize').value,
+            startDate:document.getElementById('compStart').value,
+            endDate:document.getElementById('compEnd').value,
+            bannerUrl, entries:[],
+            createdBy:me.uid, creatorName:me.displayName||'User',
+            createdAt:new Date().toISOString()
+        };
+        const ref=await addDoc(collection(db,'competitions'),data);
+        allComps.unshift({id:ref.id,...data});
+        closeCreateComp();
+        renderComps();
+    } catch(err){ alert('Gagal membuat kompetisi: '+err.message); }
+    finally{ btn.disabled=false; btn.textContent='Buat Kompetisi'; }
+});
+
+window.deleteComp = async (compId)=>{
+    if(!confirm('Hapus kompetisi ini? Semua data karya akan hilang.')) return;
+    await deleteDoc(doc(db,'competitions',compId));
+    allComps=allComps.filter(c=>c.id!==compId);
+    closeCompDetail();
+    renderComps();
+};
+
+// ── Tab Switch ─────────────────────────────────────
+window.switchTab = (tab)=>{
+    currentTab=tab;
+    ['ongoing','upcoming','ended'].forEach(t=>{
+        document.getElementById(`tab-${t}`).classList.toggle('active',t===tab);
+        document.getElementById(`tab-${t}`).classList.toggle('text-slate-400',t!==tab);
+    });
+    renderComps();
+};
+
+// ── Cloudinary Upload ──────────────────────────────
+function uploadToCloudinary(file, progressBarId='', progressDivId='') {
+    const fd=new FormData(); fd.append('file',file); fd.append('upload_preset',UPLOAD_PRESET);
+    if(progressDivId) document.getElementById(progressDivId)?.classList.remove('hidden');
+    return new Promise((res,rej)=>{
+        const xhr=new XMLHttpRequest();
+        xhr.upload.addEventListener('progress',ev=>{
+            if(ev.lengthComputable && progressBarId) {
+                const bar=document.getElementById(progressBarId);
+                if(bar) bar.style.width=Math.round((ev.loaded/ev.total)*100)+'%';
+            }
+        });
+        xhr.addEventListener('load',()=>{
+            if(progressDivId) document.getElementById(progressDivId)?.classList.add('hidden');
+            xhr.status===200?res(JSON.parse(xhr.responseText).secure_url):rej(new Error('Upload gagal'));
+        });
+        xhr.addEventListener('error',()=>rej(new Error('Upload error')));
+        xhr.open('POST',`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`);
+        xhr.send(fd);
+    });
+}
+
+// ── Helpers ────────────────────────────────────────
+function enc(s){ return encodeURIComponent(s||''); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtDate(d){ return d?new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'}):''; }
+function fmtCountdown(ms){
+    if(ms<=0) return 'Berakhir';
+    const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), d=Math.floor(ms/86400000);
+    if(d>0) return `${d} hari lagi`;
+    if(h>0) return `${h}j ${m}m lagi`;
+    return `${m} menit lagi`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - StitchLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .profile-header { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        .grid-item { transition: transform 0.3s ease; }
+        .grid-item:hover { transform: scale(1.03); }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-6">
+                <a href="dashboard.html" class="flex items-center space-x-2">
+                    <div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold hidden sm:block">StitchLink</span>
+                </a>
+                <div class="hidden md:flex space-x-1">
+                    <a href="dashboard.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Home</a>
+                    <a href="messages.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Chat</a>
+                        <a href="competition.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Kompetisi</a>
+                        <a href="discussion.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Diskusi</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button id="myProfileBtn" onclick="window.location.href='profile.html'" class="px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all text-sm">Profil Saya</button>
+                <button onclick="logout()" class="px-4 py-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all text-sm">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto px-4 py-6">
+        <!-- Profile Header -->
+        <div class="profile-header rounded-2xl border border-slate-800 p-8 mb-6 fade-in">
+            <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
+                <!-- Avatar -->
+                <div class="relative flex-shrink-0">
+                    <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=150"
+                         class="w-32 h-32 rounded-full border-4 border-purple-500 shadow-2xl object-cover">
+                    <!-- Edit button only for own profile -->
+                    <button id="editAvatarBtn" onclick="openEditModal()" class="hidden absolute bottom-0 right-0 w-10 h-10 gradient-bg rounded-full flex items-center justify-center shadow-lg hover:opacity-90 transition-all">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 text-center md:text-left">
+                    <h1 id="profileName" class="text-3xl font-bold mb-1">Loading...</h1>
+                    <p id="profileEmail" class="text-slate-400 mb-3 text-sm"></p>
+                    <p id="profileBio" class="text-slate-300 mb-4 max-w-md"></p>
+
+                    <div class="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
+                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                            <div class="text-xl font-bold gradient-text" id="postCount">0</div>
+                            <div class="text-xs text-slate-400">Postingan</div>
+                        </div>
+                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                            <div class="text-xl font-bold gradient-text" id="followerCount">0</div>
+                            <div class="text-xs text-slate-400">Pengikut</div>
+                        </div>
+                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                            <div class="text-xl font-bold gradient-text" id="followingCount">0</div>
+                            <div class="text-xs text-slate-400">Mengikuti</div>
+                        </div>
+                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                            <div class="text-xl font-bold gradient-text" id="likeCount">0</div>
+                            <div class="text-xs text-slate-400">Total Likes</div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons for other users' profiles -->
+                    <div id="otherUserActions" class="hidden flex flex-wrap gap-3 justify-center md:justify-start">
+                        <button id="followBtn" onclick="toggleFollow()" class="px-6 py-2 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all text-sm">
+                            Follow
+                        </button>
+                        <button onclick="sendMessage()" class="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-all text-sm flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                            </svg>
+                            <span>Kirim Pesan</span>
+                        </button>
+                    </div>
+
+                    <!-- Own profile edit button -->
+                    <div id="ownProfileActions" class="hidden flex flex-wrap gap-3 justify-center md:justify-start">
+                        <button onclick="openEditModal()" class="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-all text-sm flex items-center space-x-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            <span>Edit Profil</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Posts Grid -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-6">
+            <h2 class="text-xl font-bold mb-5" id="postsTitle">Postingan</h2>
+            <div id="userPostsGrid" class="grid grid-cols-2 md:grid-cols-3 gap-4"></div>
+            <div id="noPosts" class="hidden text-center py-12">
+                <svg class="w-16 h-16 mx-auto text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <p class="text-slate-400">Belum ada postingan</p>
+                <a id="createFirstPost" href="dashboard.html" class="hidden inline-block mt-4 px-6 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                    Buat Postingan Pertama
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-lg border border-slate-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Edit Profil</h3>
+                <button onclick="closeEditModal()" class="p-2 hover:bg-slate-700 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="editProfileForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Nama</label>
+                    <input type="text" id="editName"
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="Nama Anda">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Bio</label>
+                    <textarea id="editBio" rows="3"
+                              class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+                              placeholder="Ceritakan sedikit tentang Anda..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Lokasi</label>
+                    <input type="text" id="editLocation"
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="cth: Medan, Sumatera Utara">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Foto Profil (URL)</label>
+                    <input type="url" id="editPhoto"
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           placeholder="https://example.com/photo.jpg">
+                </div>
+                <button type="submit" id="saveProfileBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                    Simpan Perubahan
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut, updateProfile } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, query, where, getDocs, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8zCy3PBatjnCrEpLEZsfm8CeCYtssZI8",
+            authDomain: "nisa-stitchlink.firebaseapp.com",
+            projectId: "nisa-stitchlink",
+            storageBucket: "nisa-stitchlink.firebasestorage.app",
+            messagingSenderId: "226715367934",
+            appId: "1:226715367934:web:a444fa37eaf05878cd68af"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let profileUserId = null;
+        let profileUserData = null;
+        let isOwnProfile = false;
+
+        // Get uid from URL param
+        const params = new URLSearchParams(window.location.search);
+        profileUserId = params.get('uid');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            currentUser = user;
+
+            // If no uid param, show own profile
+            if (!profileUserId) profileUserId = user.uid;
+            isOwnProfile = profileUserId === user.uid;
+
+            await loadProfile();
+            await loadUserPosts();
+        });
+
+        async function loadProfile() {
+            try {
+                const snap = await getDoc(doc(db, 'users', profileUserId));
+                profileUserData = snap.exists() ? snap.data() : {};
+
+                // For own profile, merge auth data
+                const displayName = (isOwnProfile ? currentUser.displayName : null) || profileUserData.displayName || profileUserData.name || 'User';
+                const photoURL = (isOwnProfile ? currentUser.photoURL : null) || profileUserData.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=667eea&color=fff&size=150`;
+                const bio = profileUserData.bio || (isOwnProfile ? 'Bio belum diatur. Klik "Edit Profil" untuk mengubahnya.' : 'Bio belum diatur.');
+                const email = isOwnProfile ? currentUser.email : '';
+
+                document.getElementById('profileName').textContent = displayName;
+                document.getElementById('profileEmail').textContent = email;
+                document.getElementById('profileBio').textContent = bio;
+                document.getElementById('profileAvatar').src = photoURL;
+                document.getElementById('followerCount').textContent = profileUserData.followers?.length || 0;
+                document.getElementById('followingCount').textContent = profileUserData.following?.length || 0;
+
+                if (isOwnProfile) {
+                    document.getElementById('ownProfileActions').classList.remove('hidden');
+                    document.getElementById('ownProfileActions').classList.add('flex');
+                    document.getElementById('editAvatarBtn').classList.remove('hidden');
+                    document.getElementById('editAvatarBtn').classList.add('flex');
+                    document.getElementById('createFirstPost').classList.remove('hidden');
+                    document.getElementById('postsTitle').textContent = 'Karya Saya';
+                    // Pre-fill edit form
+                    document.getElementById('editName').value = displayName;
+                    document.getElementById('editBio').value = profileUserData.bio || '';
+                    document.getElementById('editLocation').value = profileUserData.location || '';
+                    document.getElementById('editPhoto').value = photoURL.startsWith('https://ui-avatars.com') ? '' : photoURL;
+                } else {
+                    document.getElementById('otherUserActions').classList.remove('hidden');
+                    document.getElementById('otherUserActions').classList.add('flex');
+                    document.getElementById('postsTitle').textContent = `Karya ${displayName}`;
+                    updateFollowButton();
+                }
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        async function updateFollowButton() {
+            const mySnap = await getDoc(doc(db, 'users', currentUser.uid));
+            const myData = mySnap.data();
+            const isFollowing = myData?.following?.includes(profileUserId);
+            const btn = document.getElementById('followBtn');
+            if (btn) {
+                btn.textContent = isFollowing ? 'Unfollow' : 'Follow';
+                btn.className = isFollowing
+                    ? 'px-6 py-2 bg-slate-600 text-slate-300 rounded-xl font-semibold hover:bg-red-500/20 hover:text-red-400 transition-all text-sm'
+                    : 'px-6 py-2 gradient-bg text-white rounded-xl font-semibold hover:opacity-90 transition-all text-sm';
+            }
+        }
+
+        window.toggleFollow = async () => {
+            if (!currentUser || isOwnProfile) return;
+            const userRef = doc(db, 'users', currentUser.uid);
+            const targetRef = doc(db, 'users', profileUserId);
+            const mySnap = await getDoc(userRef);
+            const myData = mySnap.data();
+            const isFollowing = myData?.following?.includes(profileUserId);
+
+            if (isFollowing) {
+                await updateDoc(userRef, { following: arrayRemove(profileUserId) });
+                await updateDoc(targetRef, { followers: arrayRemove(currentUser.uid) });
+                document.getElementById('followerCount').textContent = Math.max(0, parseInt(document.getElementById('followerCount').textContent) - 1);
+            } else {
+                await updateDoc(userRef, { following: arrayUnion(profileUserId) });
+                await updateDoc(targetRef, { followers: arrayUnion(currentUser.uid) });
+                document.getElementById('followerCount').textContent = parseInt(document.getElementById('followerCount').textContent) + 1;
+            }
+            updateFollowButton();
+        };
+
+        window.sendMessage = () => {
+            window.location.href = `messages.html?to=${profileUserId}`;
+        };
+
+        async function loadUserPosts() {
+            try {
+                const q = query(collection(db,'posts'), where('userId','==',profileUserId));
+                const snap = await getDocs(q);
+                const grid = document.getElementById('userPostsGrid');
+                const noPosts = document.getElementById('noPosts');
+
+                if (snap.empty) {
+                    grid.classList.add('hidden');
+                    noPosts.classList.remove('hidden');
+                    document.getElementById('postCount').textContent = '0';
+                    document.getElementById('likeCount').textContent = '0';
+                    return;
+                }
+
+                grid.classList.remove('hidden');
+                noPosts.classList.add('hidden');
+                let totalLikes = 0;
+                grid.innerHTML = '';
+
+                const posts = [];
+                snap.forEach(d => posts.push({ id:d.id, ...d.data() }));
+                posts.sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt));
+
+                posts.forEach(post => {
+                    totalLikes += post.likes?.length || 0;
+                    const el = document.createElement('div');
+                    el.className = 'grid-item relative aspect-square overflow-hidden rounded-xl border border-slate-700 cursor-pointer bg-slate-800';
+                    el.innerHTML = post.imageUrl
+                        ? `
+                            <img src="${post.imageUrl}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'">
+                            <div class="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center space-x-4">
+                                <div class="text-white flex items-center space-x-1">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"></path></svg>
+                                    <span class="text-sm font-semibold">${post.likes?.length||0}</span>
+                                </div>
+                                <div class="text-white flex items-center space-x-1">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7z" clip-rule="evenodd"></path></svg>
+                                    <span class="text-sm font-semibold">${post.comments?.length||0}</span>
+                                </div>
+                            </div>
+                        `
+                        : `<div class="w-full h-full flex items-center justify-center p-4"><p class="text-slate-400 text-xs text-center line-clamp-4">${post.caption||'Post'}</p></div>`;
+                    el.onclick = () => window.location.href = 'dashboard.html';
+                    grid.appendChild(el);
+                });
+
+                document.getElementById('postCount').textContent = posts.length;
+                document.getElementById('likeCount').textContent = totalLikes;
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        window.openEditModal = () => document.getElementById('editModal').classList.remove('hidden');
+        window.closeEditModal = () => document.getElementById('editModal').classList.add('hidden');
+
+        document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('saveProfileBtn');
+            btn.disabled = true; btn.textContent = 'Menyimpan...';
+            const name = document.getElementById('editName').value.trim();
+            const bio = document.getElementById('editBio').value.trim();
+            const location = document.getElementById('editLocation').value.trim();
+            const photoURL = document.getElementById('editPhoto').value.trim();
+            try {
+                await updateProfile(currentUser, {
+                    displayName: name || currentUser.displayName,
+                    photoURL: photoURL || currentUser.photoURL
+                });
+                const updateData = { displayName: name, bio, location };
+                if (photoURL) updateData.photoURL = photoURL;
+                await updateDoc(doc(db,'users',currentUser.uid), updateData);
+                closeEditModal();
+                await loadProfile();
+            } catch(err) {
+                alert('Gagal memperbarui profil: ' + err.message);
+            } finally {
+                btn.disabled=false; btn.textContent='Simpan Perubahan';
+            }
+        });
+
+        window.logout = async () => {
+            if (confirm('Yakin ingin logout?')) {
+                await signOut(auth);
+                window.location.href = 'login.html';
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesan - StitchLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        @keyframes slideIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        .msg-bubble { animation: slideIn 0.2s ease-out; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #667eea; }
+        .conv-item { cursor: pointer; transition: background 0.2s; }
+        .conv-item:hover { background: #1e293b; }
+        .conv-item.active { background: #1e293b; border-left: 3px solid #667eea; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white h-screen flex flex-col overflow-hidden">
+    <!-- Navbar -->
+    <nav class="bg-slate-900 border-b border-slate-800 flex-shrink-0">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="dashboard.html" class="flex items-center space-x-2">
+                    <div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold hidden sm:block">StitchLink</span>
+                </a>
+                <div class="hidden md:flex space-x-1">
+                    <a href="dashboard.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Home</a>
+                    <a href="messages.html" class="px-4 py-2 rounded-lg bg-slate-800 text-white font-medium">Chat</a>
+                        <a href="competition.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Kompetisi</a>
+                        <a href="discussion.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Diskusi</a>
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <a href="profile.html">
+                    <img id="navAvatar" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" class="w-8 h-8 rounded-full border-2 border-purple-500 object-cover">
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="flex-1 flex overflow-hidden max-w-7xl w-full mx-auto px-4 py-4 gap-4">
+        <!-- Sidebar: Conversations + Search -->
+        <div class="w-80 flex-shrink-0 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden">
+            <!-- Header with search toggle -->
+            <div class="px-5 py-4 border-b border-slate-700 flex-shrink-0">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-lg font-bold">Pesan</h2>
+                    <button onclick="toggleSearchPanel()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all" title="Cari pengguna">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <!-- Search Users -->
+                <div id="searchPanel">
+                    <input type="text" id="userSearchInput" placeholder="Cari pengguna..."
+                           class="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                           oninput="searchUsers(this.value)">
+                    <div id="searchResults" class="hidden mt-2 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden max-h-48 overflow-y-auto"></div>
+                </div>
+            </div>
+
+            <!-- Conversations List -->
+            <div id="conversationsList" class="flex-1 overflow-y-auto">
+                <div class="text-center py-8 text-slate-400 text-sm" id="convLoading">Memuat percakapan...</div>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="flex-1 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden">
+            <!-- Empty State -->
+            <div id="noChatSelected" class="flex-1 flex items-center justify-center text-slate-400">
+                <div class="text-center">
+                    <svg class="w-16 h-16 mx-auto mb-4 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                    <p class="text-lg font-medium">Pilih percakapan</p>
+                    <p class="text-sm mt-1">atau cari pengguna untuk mulai chat</p>
+                </div>
+            </div>
+
+            <!-- Active Chat -->
+            <div id="activeChat" class="hidden flex-1 flex flex-col overflow-hidden">
+                <!-- Chat Header -->
+                <div class="bg-slate-800 px-6 py-4 border-b border-slate-700 flex items-center space-x-3 flex-shrink-0">
+                    <img id="chatUserAvatar" src="" class="w-10 h-10 rounded-full border-2 border-purple-500 object-cover">
+                    <div class="flex-1">
+                        <h3 id="chatUserName" class="font-bold"></h3>
+                        <p id="chatUserStatus" class="text-xs text-green-400">● Online</p>
+                    </div>
+                    <a id="chatUserProfileLink" href="#" class="px-3 py-1 text-sm bg-slate-700 rounded-lg hover:bg-slate-600 transition-all">Profil</a>
+                    <!-- More options button -->
+                    <div class="relative">
+                        <button onclick="toggleChatMenu()" id="chatMenuBtn"
+                                class="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-all">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+                            </svg>
+                        </button>
+                        <div id="chatMenu" class="hidden absolute right-0 top-10 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                            <button onclick="confirmDeleteConversation()"
+                                    class="w-full flex items-center space-x-3 px-4 py-3 text-red-400 hover:bg-red-500/10 transition-all text-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                                <span>Hapus Percakapan</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div id="messagesContainer" class="flex-1 overflow-y-auto px-6 py-4 space-y-4 bg-slate-950/30"></div>
+
+                <!-- Input -->
+                <div class="bg-slate-800 px-6 py-4 border-t border-slate-700 flex-shrink-0">
+                    <div class="flex items-center space-x-3">
+                        <input type="text" id="messageInput" placeholder="Tulis pesan..."
+                               class="flex-1 px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                               onkeypress="if(event.key==='Enter'){sendMessage();return false;}">
+                        <button onclick="sendMessage()" class="px-6 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all flex-shrink-0">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Conversation Modal -->
+    <div id="deleteConvModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm border border-slate-700 shadow-2xl">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Hapus Percakapan?</h3>
+                    <p class="text-slate-400 text-sm">Semua pesan akan dihapus permanen.</p>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button onclick="closeDeleteConvModal()"
+                        class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-all text-sm">
+                    Batal
+                </button>
+                <button onclick="doDeleteConversation()" id="doDeleteConvBtn"
+                        class="flex-1 py-3 bg-red-500 hover:bg-red-600 rounded-xl font-semibold transition-all text-sm">
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Single Message Modal -->
+    <div id="deleteMsgModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm border border-slate-700 shadow-2xl">
+            <h3 class="font-bold text-lg mb-1">Hapus Pesan?</h3>
+            <p class="text-slate-400 text-sm mb-6">Pesan ini akan dihapus dan tidak bisa dikembalikan.</p>
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteMsgModal()"
+                        class="flex-1 py-3 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-all text-sm">
+                    Batal
+                </button>
+                <button onclick="doDeleteMessage()" id="doDeleteMsgBtn"
+                        class="flex-1 py-3 bg-red-500 hover:bg-red-600 rounded-xl font-semibold transition-all text-sm">
+                    Hapus
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, doc, updateDoc, getDoc, getDocs, setDoc, deleteDoc, writeBatch, serverTimestamp, arrayUnion, arrayRemove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8zCy3PBatjnCrEpLEZsfm8CeCYtssZI8",
+            authDomain: "nisa-stitchlink.firebaseapp.com",
+            projectId: "nisa-stitchlink",
+            storageBucket: "nisa-stitchlink.firebasestorage.app",
+            messagingSenderId: "226715367934",
+            appId: "1:226715367934:web:a444fa37eaf05878cd68af"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentUser = null;
+        let activeConvId = null;
+        let activeOtherUser = null;
+        let unsubMessages = null;
+        let unsubConvs = null;
+        let searchTimeout = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+            currentUser = user;
+            document.getElementById('navAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName||'U')}&background=667eea&color=fff`;
+            loadConversations();
+
+            // Check if coming from profile (direct message)
+            const params = new URLSearchParams(window.location.search);
+            const toUserId = params.get('to');
+            if (toUserId) {
+                const userSnap = await getDoc(doc(db, 'users', toUserId));
+                if (userSnap.exists()) {
+                    await openConversationWithUser({ uid: toUserId, ...userSnap.data() });
+                }
+            }
+        });
+
+        function loadConversations() {
+            const listDiv = document.getElementById('conversationsList');
+            listDiv.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Memuat...</p>';
+            if (unsubConvs) unsubConvs();
+
+            // NO orderBy — avoids needing a Firestore composite index.
+            // We sort client-side by updatedAt instead.
+            const q = query(
+                collection(db, 'conversations'),
+                where('participants', 'array-contains', currentUser.uid)
+            );
+
+            unsubConvs = onSnapshot(q, async (snap) => {
+                if (snap.empty) {
+                    listDiv.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm px-4">Belum ada percakapan.<br>Cari pengguna untuk mulai chat!</p>';
+                    return;
+                }
+
+                // Sort client-side: newest first
+                const convDocs = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => {
+                        const ta = a.updatedAt ? new Date(a.updatedAt?.toDate?.() || a.updatedAt).getTime() : 0;
+                        const tb = b.updatedAt ? new Date(b.updatedAt?.toDate?.() || b.updatedAt).getTime() : 0;
+                        return tb - ta;
+                    });
+
+                listDiv.innerHTML = '';
+
+                for (const conv of convDocs) {
+                    const otherUid = conv.participants?.find(p => p !== currentUser.uid);
+                    if (!otherUid) continue;
+
+                    // Fetch the other user's profile
+                    let other = { displayName: 'User', photoURL: '', uid: otherUid };
+                    try {
+                        const otherSnap = await getDoc(doc(db, 'users', otherUid));
+                        if (otherSnap.exists()) other = { uid: otherUid, ...otherSnap.data() };
+                    } catch (e) { /* use default */ }
+
+                    const hasUnread = Array.isArray(conv.unreadBy) && conv.unreadBy.includes(currentUser.uid);
+                    const timeStr = conv.updatedAt
+                        ? new Date(conv.updatedAt?.toDate?.() || conv.updatedAt)
+                            .toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })
+                        : '';
+
+                    const item = document.createElement('div');
+                    item.className = `conv-item px-4 py-3 border-b border-slate-800 ${activeConvId === conv.id ? 'active' : ''}`;
+                    item.id = `conv-item-${conv.id}`;
+                    item.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <div class="relative flex-shrink-0">
+                                <img src="${other.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(other.displayName||'U')}&background=667eea&color=fff`}"
+                                     class="w-11 h-11 rounded-full border-2 border-slate-700 object-cover"
+                                     onerror="this.src='https://ui-avatars.com/api/?name=U&background=667eea&color=fff'">
+                                ${hasUnread ? '<span class="absolute top-0 right-0 w-3 h-3 bg-purple-500 rounded-full border-2 border-slate-900"></span>' : ''}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-sm ${hasUnread ? 'text-white' : 'text-slate-300'} truncate">${other.displayName || 'User'}</p>
+                                <p class="text-xs ${hasUnread ? 'text-purple-300 font-medium' : 'text-slate-500'} truncate">${conv.lastMessage || 'Mulai percakapan'}</p>
+                            </div>
+                            <p class="text-xs text-slate-500 flex-shrink-0">${timeStr}</p>
+                        </div>
+                    `;
+                    item.onclick = () => openConversationWithUser(other, conv.id);
+                    listDiv.appendChild(item);
+                }
+            }, (err) => {
+                console.error('Conversations listener error:', err);
+                listDiv.innerHTML = `<p class="text-center text-red-400 py-8 text-sm px-4">Gagal memuat.<br><span class="text-xs text-slate-500">${err.message}</span></p>`;
+            });
+        }
+
+        // Get or create conversation between two users
+        async function getOrCreateConversation(otherUid) {
+            // Check if conversation exists
+            const q = query(collection(db,'conversations'), where('participants','array-contains',currentUser.uid));
+            const snap = await getDocs(q);
+            for (const d of snap.docs) {
+                const p = d.data().participants;
+                if (p.includes(otherUid) && p.length === 2) return d.id;
+            }
+            // Create new
+            const convRef = await addDoc(collection(db,'conversations'), {
+                participants: [currentUser.uid, otherUid],
+                lastMessage: '',
+                updatedAt: new Date().toISOString(),
+                unreadBy: []
+            });
+            return convRef.id;
+        }
+
+        window.openConversationWithUser = async (other, convId) => {
+            activeOtherUser = other;
+            if (!convId) convId = await getOrCreateConversation(other.uid);
+            activeConvId = convId;
+
+            // Update UI
+            document.getElementById('noChatSelected').classList.add('hidden');
+            document.getElementById('activeChat').classList.remove('hidden');
+            document.getElementById('chatUserAvatar').src = other.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(other.displayName||'U')}&background=667eea&color=fff`;
+            document.getElementById('chatUserName').textContent = other.displayName || 'User';
+            document.getElementById('chatUserProfileLink').href = `profile.html?uid=${other.uid}`;
+
+            // Mark as read
+            await updateDoc(doc(db,'conversations',convId), { unreadBy: arrayRemove(currentUser.uid) });
+
+            // Highlight active conversation
+            document.querySelectorAll('.conv-item').forEach(el => el.classList.remove('active'));
+            const activeEl = document.getElementById(`conv-item-${convId}`);
+            if (activeEl) activeEl.classList.add('active');
+
+            // Subscribe to messages — no orderBy to avoid index requirement, sort client-side
+            if (unsubMessages) unsubMessages();
+            const msgQ = collection(db, 'conversations', convId, 'messages');
+            unsubMessages = onSnapshot(msgQ, (snap) => {
+                const msgs = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => {
+                        const ta = a.createdAt ? new Date(a.createdAt?.toDate?.() || a.createdAt).getTime() : 0;
+                        const tb = b.createdAt ? new Date(b.createdAt?.toDate?.() || b.createdAt).getTime() : 0;
+                        return ta - tb;
+                    });
+                renderMessages(msgs);
+            }, (err) => {
+                console.error('Messages listener error:', err);
+            });
+
+            document.getElementById('messageInput').focus();
+        };
+
+        function renderMessages(messages) {
+            const container = document.getElementById('messagesContainer');
+            container.innerHTML = '';
+            if (!messages.length) {
+                container.innerHTML = '<p class="text-center text-slate-500 text-sm py-8">Belum ada pesan. Mulai percakapan!</p>';
+                return;
+            }
+            messages.forEach(msg => {
+                const isMine = msg.senderId === currentUser.uid;
+                const timeStr = msg.createdAt
+                    ? new Date(msg.createdAt?.toDate?.() || msg.createdAt).toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'})
+                    : '';
+                const el = document.createElement('div');
+                el.className = `group flex ${isMine ? 'justify-end' : 'justify-start'} msg-bubble`;
+                el.innerHTML = `
+                    <div class="flex ${isMine ? 'flex-row-reverse' : 'flex-row'} items-end gap-2 max-w-xs lg:max-w-md">
+                        ${!isMine ? `
+                            <img src="${activeOtherUser?.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeOtherUser?.displayName||'U')}&background=667eea&color=fff`}"
+                                 class="w-8 h-8 rounded-full flex-shrink-0 mb-1 object-cover">
+                        ` : ''}
+                        <div class="${isMine ? 'mr-1' : 'ml-1'}">
+                            <div class="${isMine ? 'gradient-bg text-white rounded-2xl rounded-br-sm' : 'bg-slate-800 text-slate-100 rounded-2xl rounded-bl-sm'} px-4 py-2.5 relative">
+                                <p class="text-sm leading-relaxed">${escapeHtml(msg.text)}</p>
+                            </div>
+                            <p class="text-xs text-slate-500 mt-1 ${isMine ? 'text-right' : ''}">
+                                ${timeStr}${isMine ? (msg.read ? ' ✓✓' : ' ✓') : ''}
+                            </p>
+                        </div>
+                        ${isMine ? `
+                        <button onclick="confirmDeleteMessage('${msg.id}')"
+                                class="opacity-0 group-hover:opacity-100 transition-opacity p-1.5 text-slate-600 hover:text-red-400 hover:bg-slate-800 rounded-lg flex-shrink-0 mb-5"
+                                title="Hapus pesan">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.sendMessage = async () => {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text || !activeConvId || !activeOtherUser) return;
+
+            input.value = '';
+            const now = new Date().toISOString();
+
+            await addDoc(collection(db,'conversations',activeConvId,'messages'), {
+                senderId: currentUser.uid,
+                senderName: currentUser.displayName || 'User',
+                text, read: false,
+                createdAt: now
+            });
+
+            await updateDoc(doc(db,'conversations',activeConvId), {
+                lastMessage: text,
+                updatedAt: now,
+                unreadBy: arrayUnion(activeOtherUser.uid)
+            });
+        };
+
+        // Search users
+        window.searchUsers = (query) => {
+            clearTimeout(searchTimeout);
+            const results = document.getElementById('searchResults');
+            if (!query.trim()) { results.classList.add('hidden'); return; }
+            searchTimeout = setTimeout(() => doSearchUsers(query), 300);
+        };
+
+        async function doSearchUsers(searchTerm) {
+            const results = document.getElementById('searchResults');
+            results.classList.remove('hidden');
+            results.innerHTML = '<p class="text-center text-slate-400 py-4 text-sm">Mencari...</p>';
+
+            try {
+                const snap = await getDocs(collection(db,'users'));
+                const term = searchTerm.toLowerCase();
+                const found = [];
+                snap.forEach(d => {
+                    const u = { uid:d.id, ...d.data() };
+                    if (u.uid !== currentUser.uid && (u.displayName?.toLowerCase().includes(term) || u.email?.toLowerCase().includes(term))) {
+                        found.push(u);
+                    }
+                });
+
+                if (!found.length) { results.innerHTML = '<p class="text-center text-slate-400 py-4 text-sm">Pengguna tidak ditemukan</p>'; return; }
+
+                results.innerHTML = found.map(u => `
+                    <div class="flex items-center space-x-3 px-3 py-2 hover:bg-slate-700 cursor-pointer" onclick="startChatWithUser('${u.uid}','${escapeAttr(u.displayName||'User')}','${escapeAttr(u.photoURL||'')}')">
+                        <img src="${u.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.displayName||'U')}&background=667eea&color=fff`}"
+                             class="w-9 h-9 rounded-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=U&background=667eea&color=fff'">
+                        <div>
+                            <p class="text-sm font-semibold">${u.displayName||'User'}</p>
+                            <p class="text-xs text-slate-400">${u.email||''}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch(e) {
+                results.innerHTML = '<p class="text-center text-red-400 py-4 text-sm">Gagal mencari</p>';
+            }
+        }
+
+        window.startChatWithUser = async (uid, name, photo) => {
+            document.getElementById('userSearchInput').value = '';
+            document.getElementById('searchResults').classList.add('hidden');
+            const convId = await getOrCreateConversation(uid);
+            await openConversationWithUser({ uid, displayName: name, photoURL: photo }, convId);
+        };
+
+        window.toggleSearchPanel = () => {
+            const panel = document.getElementById('searchPanel');
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) document.getElementById('userSearchInput').focus();
+        };
+
+        // ─── CHAT MENU ─────────────────────────────────────────
+        window.toggleChatMenu = () => {
+            document.getElementById('chatMenu').classList.toggle('hidden');
+        };
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('chatMenu');
+            if (!menu?.classList.contains('hidden') &&
+                !e.target.closest('#chatMenuBtn') &&
+                !e.target.closest('#chatMenu')) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // ─── DELETE CONVERSATION ───────────────────────────────
+        window.confirmDeleteConversation = () => {
+            document.getElementById('chatMenu').classList.add('hidden');
+            document.getElementById('deleteConvModal').classList.remove('hidden');
+        };
+        window.closeDeleteConvModal = () => {
+            document.getElementById('deleteConvModal').classList.add('hidden');
+        };
+
+        window.doDeleteConversation = async () => {
+            if (!activeConvId) return;
+            const btn = document.getElementById('doDeleteConvBtn');
+            btn.disabled = true;
+            btn.textContent = 'Menghapus...';
+            try {
+                // 1. Delete all messages in the sub-collection (batch)
+                const msgsSnap = await getDocs(collection(db, 'conversations', activeConvId, 'messages'));
+                // Firestore batch supports max 500 ops at a time
+                const BATCH_SIZE = 490;
+                let batch = writeBatch(db);
+                let count = 0;
+                for (const msgDoc of msgsSnap.docs) {
+                    batch.delete(msgDoc.ref);
+                    count++;
+                    if (count >= BATCH_SIZE) {
+                        await batch.commit();
+                        batch = writeBatch(db);
+                        count = 0;
+                    }
+                }
+                if (count > 0) await batch.commit();
+
+                // 2. Delete the conversation document itself
+                await deleteDoc(doc(db, 'conversations', activeConvId));
+
+                // 3. Reset UI
+                closeDeleteConvModal();
+                activeConvId = null;
+                activeOtherUser = null;
+                if (unsubMessages) { unsubMessages(); unsubMessages = null; }
+                document.getElementById('activeChat').classList.add('hidden');
+                document.getElementById('noChatSelected').classList.remove('hidden');
+            } catch (err) {
+                console.error('Delete conversation error:', err);
+                alert('Gagal menghapus percakapan: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Hapus';
+            }
+        };
+
+        // ─── DELETE SINGLE MESSAGE ─────────────────────────────
+        let msgToDelete = null;
+
+        window.confirmDeleteMessage = (msgId) => {
+            msgToDelete = msgId;
+            document.getElementById('deleteMsgModal').classList.remove('hidden');
+        };
+        window.closeDeleteMsgModal = () => {
+            msgToDelete = null;
+            document.getElementById('deleteMsgModal').classList.add('hidden');
+        };
+
+        window.doDeleteMessage = async () => {
+            if (!msgToDelete || !activeConvId) return;
+            const btn = document.getElementById('doDeleteMsgBtn');
+            btn.disabled = true;
+            btn.textContent = 'Menghapus...';
+            try {
+                await deleteDoc(doc(db, 'conversations', activeConvId, 'messages', msgToDelete));
+
+                // Update lastMessage in conversation if needed
+                const msgsSnap = await getDocs(collection(db, 'conversations', activeConvId, 'messages'));
+                const remaining = msgsSnap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => new Date(a.createdAt?.toDate?.() || a.createdAt) - new Date(b.createdAt?.toDate?.() || b.createdAt));
+                const lastMsg = remaining.length ? remaining[remaining.length - 1].text : '';
+                await updateDoc(doc(db, 'conversations', activeConvId), { lastMessage: lastMsg });
+
+                closeDeleteMsgModal();
+            } catch (err) {
+                console.error('Delete message error:', err);
+                alert('Gagal menghapus pesan: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Hapus';
+            }
+        };
+
+        function escapeHtml(text) {
+            return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        }
+        function escapeAttr(text) {
+            return (text||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+        }
+    </script>
+</body>
+</html>

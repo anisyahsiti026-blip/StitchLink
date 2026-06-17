@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StitchLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.15); }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+        .fade-in { animation: fadeIn 0.5s ease-out; }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        .notification-badge { animation: pulse-ring 1.5s infinite; }
+        .liked { color: #ef4444; fill: #ef4444; }
+        .following-btn { background: #475569 !important; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-800">
+        <div class="max-w-6xl mx-auto px-4 py-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-6">
+                    <a href="dashboard.html" class="flex items-center space-x-2">
+                        <div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                            </svg>
+                        </div>
+                        <span class="text-lg font-bold hidden sm:block">StitchLink</span>
+                    </a>
+                    <div class="hidden md:flex space-x-1">
+                        <a href="dashboard.html" class="px-4 py-2 rounded-lg bg-slate-800 text-white font-medium">Home</a>
+                        <a href="messages.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Chat</a>
+                        <a href="competition.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Kompetisi</a>
+                        <a href="discussion.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Diskusi</a>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="toggleSearch()" class="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                    <button onclick="toggleNotifications()" class="relative p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                        </svg>
+                        <span id="notifBadge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full notification-badge"></span>
+                    </button>
+                    <button onclick="window.location.href='messages.html'" class="relative p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                        </svg>
+                        <span id="msgBadge" class="hidden absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full notification-badge"></span>
+                    </button>
+                    <button onclick="openCreatePost()" class="hidden sm:flex items-center space-x-2 px-4 py-2 gradient-bg rounded-lg font-medium hover:opacity-90 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Buat Post</span>
+                    </button>
+                    <a href="profile.html" class="flex items-center space-x-2 px-3 py-2 rounded-lg hover:bg-slate-800 transition-all">
+                        <img id="navAvatar" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff" class="w-8 h-8 rounded-full border-2 border-purple-500">
+                        <div class="hidden sm:block">
+                            <span id="navName" class="text-sm font-medium block">Loading...</span>
+                            <span id="adminBadge" class="hidden text-xs text-purple-400 font-semibold">ADMIN</span>
+                        </div>
+                    </a>
+                    <button onclick="logout()" class="p-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all" title="Logout">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div id="searchBar" class="hidden mt-3">
+                <div class="flex space-x-2">
+                    <input type="text" id="searchInput" placeholder="Cari postingan, pengguna, atau #hashtag..."
+                           class="flex-1 px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <select id="filterCategory" class="px-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        <option value="all">Semua</option>
+                        <option value="following">Following</option>
+                        <option value="popular">Populer</option>
+                        <option value="recent">Terbaru</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notifications Panel -->
+    <div id="notificationsPanel" class="hidden fixed top-16 right-4 w-80 max-h-96 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl overflow-hidden z-50">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+            <h3 class="font-bold">Notifikasi</h3>
+            <button onclick="markAllRead()" class="text-xs text-purple-400 hover:text-purple-300">Tandai semua dibaca</button>
+        </div>
+        <div id="notificationsList" class="max-h-80 overflow-y-auto"></div>
+    </div>
+
+    <!-- Mobile FAB -->
+    <button onclick="openCreatePost()" class="sm:hidden fixed bottom-6 right-6 z-40 w-14 h-14 gradient-bg rounded-full shadow-2xl flex items-center justify-center">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+    </button>
+
+    <!-- Create Post Modal -->
+    <div id="createPostModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-lg border border-slate-700">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-xl font-bold">Buat Postingan Baru</h3>
+                <button onclick="closeCreatePost()" class="p-2 hover:bg-slate-700 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="createPostForm" class="space-y-4">
+                <textarea id="postCaption" placeholder="Ceritakan tentang karya jahitan Anda... (gunakan #hashtag)"
+                          class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none" rows="4"></textarea>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Upload Foto</label>
+                    <input type="file" id="postImage" accept="image/*"
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-500 file:text-white file:cursor-pointer hover:file:bg-purple-600">
+                    <p class="text-xs text-slate-400 mt-1">Upload via Cloudinary (max 10MB)</p>
+                </div>
+                <div id="imagePreview" class="hidden">
+                    <img id="previewImg" class="w-full rounded-xl border border-slate-700">
+                </div>
+                <div id="uploadProgress" class="hidden">
+                    <div class="w-full bg-slate-700 rounded-full h-2">
+                        <div id="progressBar" class="gradient-bg h-2 rounded-full transition-all" style="width:0%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1" id="uploadStatus">Mengupload...</p>
+                </div>
+                <button type="submit" id="postBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                    Posting
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div id="deleteModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="bg-slate-800 rounded-2xl p-6 w-full max-w-sm border border-slate-700">
+            <h3 class="text-xl font-bold mb-2">Hapus Postingan?</h3>
+            <p class="text-slate-400 mb-6">Postingan yang dihapus tidak bisa dikembalikan.</p>
+            <div class="flex space-x-3">
+                <button onclick="closeDeleteModal()" class="flex-1 py-3 bg-slate-700 rounded-xl font-semibold hover:bg-slate-600 transition-all">Batal</button>
+                <button onclick="confirmDelete()" id="confirmDeleteBtn" class="flex-1 py-3 bg-red-500 rounded-xl font-semibold hover:bg-red-600 transition-all">Hapus</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main -->
+    <main class="max-w-2xl mx-auto px-4 py-6">
+        <div id="postsFeed" class="space-y-6"></div>
+        <div id="loadingPosts" class="text-center py-12">
+            <div class="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <p class="text-slate-400 mt-4">Memuat postingan...</p>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, updateDoc, doc, arrayUnion, arrayRemove, getDoc, where, setDoc, deleteDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8zCy3PBatjnCrEpLEZsfm8CeCYtssZI8",
+            authDomain: "nisa-stitchlink.firebaseapp.com",
+            projectId: "nisa-stitchlink",
+            storageBucket: "nisa-stitchlink.firebasestorage.app",
+            messagingSenderId: "226715367934",
+            appId: "1:226715367934:web:a444fa37eaf05878cd68af"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const CLOUDINARY_CLOUD_NAME = 'dmvaghjws';
+        const CLOUDINARY_UPLOAD_PRESET = 'tailor_community_uploads';
+
+        let currentUser = null;
+        let currentUserData = null;
+        let isAdmin = false; // Admin flag
+        let allPosts = [];
+        let notifications = [];
+        let postToDelete = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('navName').textContent = user.displayName || 'User';
+                document.getElementById('navAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName||'User')}&background=667eea&color=fff`;
+                // Load user data from Firestore for following list
+                const userSnap = await getDoc(doc(db, 'users', user.uid));
+                if (userSnap.exists()) {
+                    currentUserData = userSnap.data();
+                    // Check if user is admin
+                    isAdmin = currentUserData.role === 'admin';
+                    if (isAdmin) {
+                        console.log('Admin access granted');
+                        document.getElementById('adminBadge').classList.remove('hidden');
+                    }
+                    // Check if user is banned
+                    if (currentUserData.banned) {
+                        alert('Akun Anda telah di-ban. Reason: ' + (currentUserData.bannedReason || 'Melanggar aturan komunitas'));
+                        document.getElementById('createPostModal').remove(); // Remove create post
+                        document.querySelector('[onclick="openCreatePost()"]')?.remove(); // Remove FAB
+                    }
+                } else {
+                    // Create profile if missing
+                    currentUserData = { uid: user.uid, displayName: user.displayName, email: user.email, photoURL: user.photoURL||'', bio:'', following:[], followers:[], createdAt: new Date().toISOString() };
+                    await setDoc(doc(db, 'users', user.uid), currentUserData);
+                    isAdmin = false;
+                }
+                loadPosts();
+                loadNotifications();
+                checkUnreadMessages();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        window.logout = async () => { await signOut(auth); window.location.href = 'login.html'; };
+
+        window.toggleSearch = () => {
+            const sb = document.getElementById('searchBar');
+            sb.classList.toggle('hidden');
+            if (!sb.classList.contains('hidden')) document.getElementById('searchInput').focus();
+        };
+
+        window.toggleNotifications = () => {
+            document.getElementById('notificationsPanel').classList.toggle('hidden');
+        };
+
+        document.getElementById('searchInput')?.addEventListener('input', filterPosts);
+        document.getElementById('filterCategory')?.addEventListener('change', filterPosts);
+
+        function filterPosts() {
+            const term = document.getElementById('searchInput').value.toLowerCase();
+            const cat = document.getElementById('filterCategory').value;
+            let filtered = [...allPosts];
+            if (term) filtered = filtered.filter(p => p.caption?.toLowerCase().includes(term) || p.userName?.toLowerCase().includes(term) || p.hashtags?.some(t => t.toLowerCase().includes(term)));
+            if (cat === 'following') filtered = filtered.filter(p => currentUserData?.following?.includes(p.userId));
+            else if (cat === 'popular') filtered = [...filtered].sort((a,b) => (b.likes?.length||0)-(a.likes?.length||0));
+            else if (cat === 'recent') filtered = [...filtered].sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt));
+            displayPosts(filtered);
+        }
+
+        window.openCreatePost = () => document.getElementById('createPostModal').classList.remove('hidden');
+        window.closeCreatePost = () => {
+            document.getElementById('createPostModal').classList.add('hidden');
+            document.getElementById('createPostForm').reset();
+            document.getElementById('imagePreview').classList.add('hidden');
+        };
+
+        document.getElementById('postImage').addEventListener('change', (e) => {
+            const f = e.target.files[0];
+            if (!f) return;
+            if (f.size > 10*1024*1024) { alert('Ukuran file maksimal 10MB!'); e.target.value=''; return; }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                document.getElementById('previewImg').src = ev.target.result;
+                document.getElementById('imagePreview').classList.remove('hidden');
+            };
+            reader.readAsDataURL(f);
+        });
+
+        async function uploadToCloudinary(file) {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+            const pgDiv = document.getElementById('uploadProgress');
+            const pgBar = document.getElementById('progressBar');
+            const pgStatus = document.getElementById('uploadStatus');
+            pgDiv.classList.remove('hidden');
+            return new Promise((res, rej) => {
+                const xhr = new XMLHttpRequest();
+                xhr.upload.addEventListener('progress', (e) => {
+                    if (e.lengthComputable) {
+                        const pct = Math.round((e.loaded/e.total)*100);
+                        pgBar.style.width = pct+'%';
+                        pgStatus.textContent = `Mengupload... ${pct}%`;
+                    }
+                });
+                xhr.addEventListener('load', () => {
+                    pgDiv.classList.add('hidden');
+                    if (xhr.status === 200) res(JSON.parse(xhr.responseText).secure_url);
+                    else rej(new Error('Upload gagal'));
+                });
+                xhr.addEventListener('error', () => { pgDiv.classList.add('hidden'); rej(new Error('Upload error')); });
+                xhr.open('POST', `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`);
+                xhr.send(fd);
+            });
+        }
+
+        function extractHashtags(text) { return text.match(/#[a-zA-Z0-9_]+/g) || []; }
+
+        document.getElementById('createPostForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Check if banned
+            if (currentUserData?.banned) {
+                alert('Anda tidak dapat membuat postingan karena akun di-ban.');
+                return;
+            }
+            
+            const btn = document.getElementById('postBtn');
+            btn.disabled = true; btn.textContent = 'Memposting...';
+            const caption = document.getElementById('postCaption').value;
+            const imgFile = document.getElementById('postImage').files[0];
+            if (!caption && !imgFile) { alert('Tambahkan caption atau foto!'); btn.disabled=false; btn.textContent='Posting'; return; }
+            try {
+                let imageUrl = '';
+                if (imgFile) imageUrl = await uploadToCloudinary(imgFile);
+                const postData = {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName || 'User',
+                    userPhoto: currentUser.photoURL || '',
+                    caption, imageUrl,
+                    hashtags: extractHashtags(caption),
+                    likes: [], comments: [],
+                    createdAt: new Date().toISOString()
+                };
+                await addDoc(collection(db, 'posts'), postData);
+                closeCreatePost();
+                loadPosts();
+            } catch (err) {
+                console.error(err);
+                alert('Gagal membuat postingan: ' + err.message);
+            } finally {
+                btn.disabled=false; btn.textContent='Posting';
+            }
+        });
+
+        async function loadPosts() {
+            try {
+                const q = query(collection(db, 'posts'), orderBy('createdAt', 'desc'));
+                const snap = await getDocs(q);
+                allPosts = [];
+                snap.forEach(d => allPosts.push({ id: d.id, ...d.data() }));
+                // Refresh currentUserData following
+                const userSnap = await getDoc(doc(db, 'users', currentUser.uid));
+                if (userSnap.exists()) currentUserData = userSnap.data();
+                displayPosts(allPosts);
+                document.getElementById('loadingPosts').classList.add('hidden');
+            } catch (err) {
+                console.error(err);
+                document.getElementById('loadingPosts').innerHTML = '<p class="text-red-400">Gagal memuat postingan</p>';
+            }
+        }
+
+        function displayPosts(posts) {
+            const feed = document.getElementById('postsFeed');
+            feed.innerHTML = '';
+            if (!posts.length) { feed.innerHTML = '<p class="text-center text-slate-400 py-12">Belum ada postingan</p>'; return; }
+
+            posts.forEach(post => {
+                const isLiked = post.likes?.includes(currentUser.uid);
+                const isOwner = post.userId === currentUser.uid;
+                const isFollowing = currentUserData?.following?.includes(post.userId);
+                const hashHtml = (post.hashtags||[]).map(t => `<a href="#" onclick="searchHashtag('${t}');return false;" class="text-purple-400 hover:text-purple-300">${t}</a>`).join(' ');
+
+                const card = document.createElement('div');
+                card.className = 'bg-slate-900 rounded-2xl border border-slate-800 card-hover fade-in';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between p-4">
+                        <div class="flex items-center space-x-3">
+                            <img src="${post.userPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(post.userName||'U')}&background=667eea&color=fff`}"
+                                 class="w-10 h-10 rounded-full border-2 border-purple-500 cursor-pointer object-cover"
+                                 onclick="viewProfile('${post.userId}')" onerror="this.src='https://ui-avatars.com/api/?name=U&background=667eea&color=fff'">
+                            <div>
+                                <h4 class="font-semibold cursor-pointer hover:text-purple-400" onclick="viewProfile('${post.userId}')">${post.userName || 'User'}</h4>
+                                <p class="text-xs text-slate-400">${new Date(post.createdAt).toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            ${!isOwner ? `
+                            <button id="followBtn-${post.userId}" onclick="toggleFollow('${post.userId}', this)"
+                                    class="px-3 py-1 text-sm rounded-lg font-medium transition-all ${isFollowing ? 'bg-slate-600 text-slate-300 hover:bg-red-500/20 hover:text-red-400' : 'gradient-bg text-white hover:opacity-90'}">
+                                ${isFollowing ? 'Following' : 'Follow'}
+                            </button>
+                            ` : ''}
+                            ${isOwner ? `
+                            <button onclick="openDeleteModal('${post.id}')" class="p-2 text-slate-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all" title="Hapus post">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                            ` : ''}
+                            ${isAdmin && !isOwner ? `
+                            <button onclick="openDeleteModal('${post.id}')" class="p-2 text-orange-500 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all" title="[ADMIN] Hapus post">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                            <button onclick="banUser('${post.userId}', '${post.userName}')" class="p-2 text-yellow-500 hover:text-yellow-400 hover:bg-slate-800 rounded-lg transition-all" title="[ADMIN] Ban user">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path>
+                                </svg>
+                            </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" class="w-full max-h-96 object-cover" loading="lazy">` : ''}
+                    <div class="p-4 space-y-3">
+                        <div class="flex items-center space-x-4">
+                            <button onclick="toggleLike('${post.id}')" id="likeBtn-${post.id}" class="flex items-center space-x-1 hover:scale-110 transition-transform">
+                                <svg id="likeIcon-${post.id}" class="w-6 h-6 transition-all"
+                                     fill="${isLiked ? '#ef4444' : 'none'}"
+                                     stroke="${isLiked ? '#ef4444' : '#94a3b8'}"
+                                     viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                </svg>
+                                <span id="likeCount-${post.id}" class="text-sm font-medium ${isLiked ? 'text-red-500' : 'text-slate-400'}">${post.likes?.length || 0}</span>
+                            </button>
+                            <button onclick="toggleComments('${post.id}')" class="flex items-center space-x-1 text-slate-400 hover:text-white transition-colors">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                                </svg>
+                                <span id="commentCount-${post.id}" class="text-sm font-medium">${post.comments?.length || 0}</span>
+                            </button>
+                            ${!isOwner ? `
+                            <button onclick="sendMessage('${post.userId}')" class="flex items-center space-x-1 text-slate-400 hover:text-white transition-colors" title="Kirim pesan">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                                </svg>
+                            </button>
+                            ` : ''}
+                        </div>
+                        ${post.caption ? `<p class="text-slate-300">${post.caption}</p>${hashHtml ? `<p class="text-sm">${hashHtml}</p>` : ''}` : ''}
+
+                        <!-- Comments -->
+                        <div id="comments-${post.id}" class="hidden space-y-3 pt-3 border-t border-slate-800">
+                            <div id="commentsList-${post.id}" class="space-y-2 max-h-60 overflow-y-auto">
+                                ${(post.comments||[]).map(c => `
+                                    <div class="flex space-x-2">
+                                        <img src="${c.userPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.userName||'U')}&background=667eea&color=fff`}"
+                                             class="w-8 h-8 rounded-full flex-shrink-0 object-cover" onerror="this.src='https://ui-avatars.com/api/?name=U&background=667eea&color=fff'">
+                                        <div class="flex-1 bg-slate-800 rounded-lg p-2">
+                                            <p class="text-sm font-semibold">${c.userName||'User'}</p>
+                                            <p class="text-sm text-slate-300">${c.text}</p>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="flex space-x-2">
+                                <img src="${currentUser.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName||'U')}&background=667eea&color=fff`}"
+                                     class="w-8 h-8 rounded-full flex-shrink-0 object-cover">
+                                <input type="text" id="commentInput-${post.id}" placeholder="Tulis komentar..."
+                                       class="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                       onkeypress="if(event.key==='Enter'){addComment('${post.id}');return false;}">
+                                <button onclick="addComment('${post.id}')" class="px-4 py-2 gradient-bg rounded-lg text-sm font-medium hover:opacity-90">Kirim</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                feed.appendChild(card);
+            });
+        }
+
+        // Toggle Like - updates UI instantly
+        window.toggleLike = async (postId) => {
+            if (!currentUser) return;
+            const postRef = doc(db, 'posts', postId);
+
+            // Read current state
+            const postSnap = await getDoc(postRef);
+            if (!postSnap.exists()) return;
+            const data = postSnap.data();
+            const isLiked = Array.isArray(data.likes) && data.likes.includes(currentUser.uid);
+
+            // Optimistic UI update — set SVG fill/stroke attributes directly
+            const icon = document.getElementById(`likeIcon-${postId}`);
+            const countEl = document.getElementById(`likeCount-${postId}`);
+
+            if (icon) {
+                if (!isLiked) {
+                    // Now liked → red filled heart
+                    icon.setAttribute('fill', '#ef4444');
+                    icon.setAttribute('stroke', '#ef4444');
+                } else {
+                    // Now unliked → empty grey heart
+                    icon.setAttribute('fill', 'none');
+                    icon.setAttribute('stroke', '#94a3b8');
+                }
+            }
+            if (countEl) {
+                const currentCount = parseInt(countEl.textContent) || 0;
+                countEl.textContent = isLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
+                countEl.className = `text-sm font-medium ${!isLiked ? 'text-red-500' : 'text-slate-400'}`;
+            }
+
+            // Write to Firestore
+            try {
+                await updateDoc(postRef, {
+                    likes: isLiked ? arrayRemove(currentUser.uid) : arrayUnion(currentUser.uid)
+                });
+                // Send notification if liking someone else's post
+                if (!isLiked && data.userId !== currentUser.uid) {
+                    await addNotification(data.userId, 'like', { userName: currentUser.displayName || 'User', postId });
+                }
+            } catch (err) {
+                // Revert UI on failure
+                console.error('Like error:', err);
+                if (icon) {
+                    icon.setAttribute('fill', isLiked ? '#ef4444' : 'none');
+                    icon.setAttribute('stroke', isLiked ? '#ef4444' : '#94a3b8');
+                }
+                if (countEl) {
+                    const currentCount = parseInt(countEl.textContent) || 0;
+                    countEl.textContent = isLiked ? currentCount + 1 : Math.max(0, currentCount - 1);
+                }
+                alert('Gagal menyimpan like. Cek Firestore Rules.');
+            }
+        };
+
+        window.toggleComments = (postId) => {
+            document.getElementById(`comments-${postId}`).classList.toggle('hidden');
+        };
+
+        window.addComment = async (postId) => {
+            const input = document.getElementById(`commentInput-${postId}`);
+            const text = input.value.trim();
+            if (!text) return;
+
+            const comment = {
+                userId: currentUser.uid,
+                userName: currentUser.displayName || 'User',
+                userPhoto: currentUser.photoURL || '',
+                text,
+                createdAt: new Date().toISOString()
+            };
+
+            const postRef = doc(db, 'posts', postId);
+            await updateDoc(postRef, { comments: arrayUnion(comment) });
+
+            // Add comment to UI instantly
+            const listDiv = document.getElementById(`commentsList-${postId}`);
+            const commentEl = document.createElement('div');
+            commentEl.className = 'flex space-x-2';
+            commentEl.innerHTML = `
+                <img src="${comment.userPhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.userName)}&background=667eea&color=fff`}"
+                     class="w-8 h-8 rounded-full flex-shrink-0 object-cover">
+                <div class="flex-1 bg-slate-800 rounded-lg p-2">
+                    <p class="text-sm font-semibold">${comment.userName}</p>
+                    <p class="text-sm text-slate-300">${comment.text}</p>
+                </div>
+            `;
+            listDiv.appendChild(commentEl);
+            input.value = '';
+
+            // Update count
+            const countEl = document.getElementById(`commentCount-${postId}`);
+            if (countEl) countEl.textContent = parseInt(countEl.textContent||0)+1;
+
+            const postSnap = await getDoc(postRef);
+            if (postSnap.data().userId !== currentUser.uid) {
+                await addNotification(postSnap.data().userId, 'comment', { userName: currentUser.displayName, comment: text, postId });
+            }
+        };
+
+        // Toggle Follow
+        window.toggleFollow = async (userId, btn) => {
+            if (!currentUser) return;
+            const userRef = doc(db, 'users', currentUser.uid);
+            const targetRef = doc(db, 'users', userId);
+
+            // Reload latest data
+            const mySnap = await getDoc(userRef);
+            const myData = mySnap.data();
+            const isFollowing = myData?.following?.includes(userId);
+
+            if (isFollowing) {
+                await updateDoc(userRef, { following: arrayRemove(userId) });
+                await updateDoc(targetRef, { followers: arrayRemove(currentUser.uid) });
+                // Update all follow buttons for this user
+                document.querySelectorAll(`#followBtn-${userId}`).forEach(b => {
+                    b.textContent = 'Follow';
+                    b.className = 'px-3 py-1 text-sm rounded-lg font-medium transition-all gradient-bg text-white hover:opacity-90';
+                });
+            } else {
+                await updateDoc(userRef, { following: arrayUnion(userId) });
+                await updateDoc(targetRef, { followers: arrayUnion(currentUser.uid) });
+                document.querySelectorAll(`#followBtn-${userId}`).forEach(b => {
+                    b.textContent = 'Following';
+                    b.className = 'px-3 py-1 text-sm rounded-lg font-medium transition-all bg-slate-600 text-slate-300 hover:bg-red-500/20 hover:text-red-400';
+                });
+                await addNotification(userId, 'follow', { userName: currentUser.displayName, userId: currentUser.uid });
+            }
+
+            // Update local cache
+            const updatedSnap = await getDoc(userRef);
+            if (updatedSnap.exists()) currentUserData = updatedSnap.data();
+        };
+
+        // Delete post
+        window.openDeleteModal = (postId) => {
+            postToDelete = postId;
+            document.getElementById('deleteModal').classList.remove('hidden');
+        };
+        window.closeDeleteModal = () => {
+            postToDelete = null;
+            document.getElementById('deleteModal').classList.add('hidden');
+        };
+        window.confirmDelete = async () => {
+            if (!postToDelete) return;
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = true; btn.textContent = 'Menghapus...';
+            try {
+                await deleteDoc(doc(db, 'posts', postToDelete));
+                closeDeleteModal();
+                loadPosts();
+            } catch (err) {
+                alert('Gagal menghapus: ' + err.message);
+            } finally {
+                btn.disabled = false; btn.textContent = 'Hapus';
+            }
+        };
+
+        window.viewProfile = (userId) => { window.location.href = `profile.html?uid=${userId}`; };
+        window.sendMessage = (userId) => { window.location.href = `messages.html?to=${userId}`; };
+        window.searchHashtag = (tag) => {
+            document.getElementById('searchInput').value = tag;
+            document.getElementById('searchBar').classList.remove('hidden');
+            filterPosts();
+        };
+
+        // Admin: Ban User
+        window.banUser = async (userId, userName) => {
+            if (!isAdmin) {
+                alert('Hanya admin yang dapat ban user!');
+                return;
+            }
+            
+            const reason = prompt(`Ban user "${userName}"?\n\nAlasan ban (opsional):`);
+            if (reason === null) return; // Cancelled
+            
+            if (!confirm(`Yakin ingin ban user "${userName}"? User tidak akan bisa post/comment lagi.`)) return;
+            
+            try {
+                await updateDoc(doc(db, 'users', userId), {
+                    banned: true,
+                    bannedAt: new Date(),
+                    bannedReason: reason || 'Melanggar aturan komunitas',
+                    bannedBy: currentUser.uid
+                });
+                alert(`User "${userName}" berhasil di-ban!`);
+                loadPosts(); // Refresh
+            } catch (err) {
+                console.error(err);
+                alert('Gagal ban user: ' + err.message);
+            }
+        };
+
+        // Notifications
+        async function loadNotifications() {
+            try {
+                const q = query(collection(db,'notifications'), where('userId','==',currentUser.uid), orderBy('createdAt','desc'));
+                const snap = await getDocs(q);
+                notifications = [];
+                let unread = 0;
+                snap.forEach(d => { const n={id:d.id,...d.data()}; notifications.push(n); if(!n.read) unread++; });
+                if (unread > 0) document.getElementById('notifBadge').classList.remove('hidden');
+                else document.getElementById('notifBadge').classList.add('hidden');
+                displayNotifications();
+            } catch(e) { console.error(e); }
+        }
+
+        function displayNotifications() {
+            const list = document.getElementById('notificationsList');
+            if (!notifications.length) { list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Tidak ada notifikasi</p>'; return; }
+            const icons = { like:'❤️', comment:'💬', follow:'👤', new_post:'📸' };
+            const msgs = {
+                like: n => `${n.data?.userName} menyukai postingan Anda`,
+                comment: n => `${n.data?.userName} mengomentari postingan Anda`,
+                follow: n => `${n.data?.userName} mulai mengikuti Anda`,
+                new_post: n => `${n.data?.userName} membuat postingan baru`
+            };
+            list.innerHTML = notifications.map(n => `
+                <div class="p-3 hover:bg-slate-800 border-b border-slate-800 ${!n.read?'bg-slate-800/50':''}">
+                    <div class="flex items-start space-x-3">
+                        <span class="text-xl">${icons[n.type]||'🔔'}</span>
+                        <div class="flex-1">
+                            <p class="text-sm">${msgs[n.type]?.(n)||'Notifikasi baru'}</p>
+                            <p class="text-xs text-slate-400">${new Date(n.createdAt).toLocaleString('id-ID')}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function addNotification(userId, type, data) {
+            try {
+                await addDoc(collection(db,'notifications'), { userId, type, data, read:false, createdAt: new Date().toISOString() });
+            } catch(e) { console.error(e); }
+        }
+
+        window.markAllRead = async () => {
+            for (const n of notifications) {
+                if (!n.read) await updateDoc(doc(db,'notifications',n.id), { read:true });
+            }
+            document.getElementById('notifBadge').classList.add('hidden');
+            loadNotifications();
+        };
+
+        async function checkUnreadMessages() {
+            try {
+                const q = query(collection(db,'conversations'), where('participants','array-contains',currentUser.uid));
+                const snap = await getDocs(q);
+                let hasUnread = false;
+                snap.forEach(d => { if (d.data().unreadBy?.includes(currentUser.uid)) hasUnread = true; });
+                if (hasUnread) document.getElementById('msgBadge').classList.remove('hidden');
+            } catch(e) { console.error(e); }
+        }
+
+        // Close panels on click outside
+        document.addEventListener('click', (e) => {
+            const notifPanel = document.getElementById('notificationsPanel');
+            if (!notifPanel.classList.contains('hidden') && !e.target.closest('#notificationsPanel') && !e.target.closest('button[onclick*="toggleNotifications"]')) {
+                notifPanel.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

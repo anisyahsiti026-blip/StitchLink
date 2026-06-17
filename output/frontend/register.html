@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar - StitchLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .hero-pattern {
+            background-color: #0f172a;
+            background-image: radial-gradient(at 47% 33%, hsla(262,77%,46%,0.12) 0, transparent 59%), radial-gradient(at 82% 65%, hsla(218,100%,50%,0.15) 0, transparent 55%);
+        }
+        .glass-card { background: rgba(30,41,59,0.7); backdrop-filter: blur(20px); border: 1px solid rgba(148,163,184,0.1); }
+        @keyframes slideInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+        .animate-slide-in { animation: slideInUp 0.6s ease-out; }
+        .strength-bar { height: 4px; border-radius: 2px; transition: all 0.3s; }
+    </style>
+</head>
+<body class="hero-pattern min-h-screen flex items-center justify-center p-6">
+    <div class="w-full max-w-md animate-slide-in">
+        <div class="text-center mb-8">
+            <a href="index.html" class="inline-flex items-center space-x-3 mb-4">
+                <div class="w-12 h-12 gradient-bg rounded-xl flex items-center justify-center">
+                    <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
+                    </svg>
+                </div>
+                <span class="text-2xl font-bold text-white">StitchLink</span>
+            </a>
+            <h1 class="text-3xl font-bold text-white mb-2">Mulai Perjalanan Anda</h1>
+            <p class="text-slate-400">Daftar gratis dan bergabung dengan komunitas penjahit</p>
+        </div>
+
+        <div class="glass-card rounded-2xl p-8 shadow-2xl">
+            <form id="registerForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Nama Lengkap *</label>
+                    <input type="text" id="fullName" required
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                           placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Email *</label>
+                    <input type="email" id="email" required
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                           placeholder="nama@email.com">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Password *</label>
+                    <div class="relative">
+                        <input type="password" id="password" required oninput="checkStrength(this.value)"
+                               class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                               placeholder="Min. 6 karakter">
+                        <button type="button" onclick="togglePwd('password')" class="absolute right-3 top-3.5 text-slate-400 hover:text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                    <div class="flex space-x-1 mt-2">
+                        <div id="s1" class="strength-bar flex-1 bg-slate-700"></div>
+                        <div id="s2" class="strength-bar flex-1 bg-slate-700"></div>
+                        <div id="s3" class="strength-bar flex-1 bg-slate-700"></div>
+                        <div id="s4" class="strength-bar flex-1 bg-slate-700"></div>
+                    </div>
+                    <p id="strengthLabel" class="text-xs text-slate-500 mt-1"></p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Konfirmasi Password *</label>
+                    <div class="relative">
+                        <input type="password" id="confirmPassword" required
+                               class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                               placeholder="Ulangi password">
+                        <button type="button" onclick="togglePwd('confirmPassword')" class="absolute right-3 top-3.5 text-slate-400 hover:text-white">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <label class="flex items-start text-sm text-slate-300 cursor-pointer">
+                    <input type="checkbox" id="terms" required class="mr-2 mt-1 rounded accent-purple-500">
+                    <span>Saya setuju dengan <a href="#" class="gradient-text hover:underline">Syarat & Ketentuan</a> dan <a href="#" class="gradient-text hover:underline">Kebijakan Privasi</a></span>
+                </label>
+                <button type="submit" id="registerBtn"
+                        class="w-full py-4 gradient-bg rounded-xl font-semibold text-white hover:opacity-90 transition-all transform hover:scale-[1.02] shadow-lg shadow-purple-500/30">
+                    Daftar Sekarang
+                </button>
+
+                <div class="relative my-4">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-700"></div></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-4 bg-slate-800 text-slate-400 rounded">atau daftar dengan</span></div>
+                </div>
+
+                <button type="button" id="googleSignUp"
+                        class="w-full py-4 bg-white text-slate-900 rounded-xl font-semibold hover:bg-slate-100 transition-all transform hover:scale-[1.02] flex items-center justify-center space-x-3 shadow-md">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    <span>Daftar dengan Google</span>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-slate-400">
+                Sudah punya akun? <a href="login.html" class="gradient-text font-semibold hover:underline">Masuk di sini</a>
+            </div>
+        </div>
+
+        <div id="message" class="hidden mt-4 p-4 rounded-xl text-sm text-center"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, updateProfile, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8zCy3PBatjnCrEpLEZsfm8CeCYtssZI8",
+            authDomain: "nisa-stitchlink.firebaseapp.com",
+            projectId: "nisa-stitchlink",
+            storageBucket: "nisa-stitchlink.firebasestorage.app",
+            messagingSenderId: "226715367934",
+            appId: "1:226715367934:web:a444fa37eaf05878cd68af"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+        googleProvider.addScope('profile');
+        googleProvider.addScope('email');
+
+        // Redirect if already logged in
+        onAuthStateChanged(auth, (user) => { if (user) window.location.href = 'dashboard.html'; });
+
+        function showMsg(msg, isError = false) {
+            const el = document.getElementById('message');
+            el.textContent = msg;
+            el.className = `mt-4 p-4 rounded-xl text-sm text-center ${isError ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'bg-green-500/10 border border-green-500/30 text-green-400'}`;
+            el.classList.remove('hidden');
+            if (!isError) setTimeout(() => el.classList.add('hidden'), 4000);
+        }
+
+        function setLoading(id, loading, text) {
+            const btn = document.getElementById(id);
+            btn.disabled = loading;
+            if (text) btn.textContent = text;
+        }
+
+        async function createUserProfile(user, extraData = {}) {
+            const userRef = doc(db, 'users', user.uid);
+            const snap = await getDoc(userRef);
+            if (!snap.exists()) {
+                await setDoc(userRef, {
+                    uid: user.uid,
+                    displayName: user.displayName || extraData.displayName || 'User',
+                    email: user.email,
+                    photoURL: user.photoURL || '',
+                    bio: '',
+                    location: '',
+                    following: [],
+                    followers: [],
+                    createdAt: new Date().toISOString(),
+                    ...extraData
+                });
+            }
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('fullName').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            if (password !== confirm) { showMsg('Password tidak cocok!', true); return; }
+            if (password.length < 6) { showMsg('Password minimal 6 karakter!', true); return; }
+
+            setLoading('registerBtn', true, 'Mendaftarkan...');
+            try {
+                const cred = await createUserWithEmailAndPassword(auth, email, password);
+                await updateProfile(cred.user, { displayName: fullName });
+                await createUserProfile(cred.user, { displayName: fullName });
+                showMsg('Pendaftaran berhasil! Mengalihkan ke dashboard...');
+                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+            } catch (err) {
+                const msgs = {
+                    'auth/email-already-in-use': 'Email sudah terdaftar. Silakan login.',
+                    'auth/weak-password': 'Password terlalu lemah.',
+                    'auth/invalid-email': 'Format email tidak valid.'
+                };
+                showMsg(msgs[err.code] || 'Terjadi kesalahan. Silakan coba lagi.', true);
+            } finally {
+                setLoading('registerBtn', false, 'Daftar Sekarang');
+            }
+        });
+
+        document.getElementById('googleSignUp').addEventListener('click', async () => {
+            const btn = document.getElementById('googleSignUp');
+            btn.disabled = true;
+            try {
+                const result = await signInWithPopup(auth, googleProvider);
+                await createUserProfile(result.user);
+                window.location.href = 'dashboard.html';
+            } catch (err) {
+                if (err.code !== 'auth/popup-closed-by-user') {
+                    showMsg('Gagal mendaftar dengan Google. Silakan coba lagi.', true);
+                }
+            } finally {
+                btn.disabled = false;
+            }
+        });
+
+        // Password strength checker
+        window.checkStrength = (pwd) => {
+            const bars = ['s1','s2','s3','s4'];
+            const colors = ['bg-red-500','bg-orange-500','bg-yellow-500','bg-green-500'];
+            const labels = ['','Lemah','Sedang','Kuat','Sangat Kuat'];
+            let score = 0;
+            if (pwd.length >= 6) score++;
+            if (pwd.length >= 10) score++;
+            if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) score++;
+            if (/[^A-Za-z0-9]/.test(pwd)) score++;
+            bars.forEach((id, i) => {
+                const el = document.getElementById(id);
+                el.className = `strength-bar flex-1 ${i < score ? colors[score-1] : 'bg-slate-700'}`;
+            });
+            document.getElementById('strengthLabel').textContent = labels[score] ? `Keamanan: ${labels[score]}` : '';
+        };
+
+        window.togglePwd = (id) => {
+            const inp = document.getElementById(id);
+            inp.type = inp.type === 'password' ? 'text' : 'password';
+        };
+    </script>
+</body>
+</html>

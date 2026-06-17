@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diskusi - StitchLink</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { font-family: 'Outfit', sans-serif; }
+        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        .fade-in { animation: fadeIn .4s ease-out; }
+        .thread-card { transition: all .25s; border-left: 3px solid transparent; }
+        .thread-card:hover { border-left-color: #667eea; background: #1e293b; }
+        .upvoted svg { fill: #a78bfa; stroke: #a78bfa; }
+        .reply-card { border-left: 2px solid #334155; }
+        .reply-card.best { border-left-color: #22c55e; background: rgba(34,197,94,.05); }
+        .cat-chip.active { background: linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-thumb { background:#475569; border-radius:10px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-white min-h-screen">
+
+<!-- Navbar -->
+<nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center space-x-5">
+            <a href="dashboard.html" class="flex items-center space-x-2">
+                <div class="w-9 h-9 gradient-bg rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                    </svg>
+                </div>
+                <span class="text-lg font-bold hidden sm:block">StitchLink</span>
+            </a>
+            <div class="hidden md:flex space-x-1">
+                <a href="dashboard.html"   class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Home</a>
+                <a href="messages.html"    class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Chat</a>
+                <a href="competition.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Kompetisi</a>
+                <a href="discussion.html"  class="px-4 py-2 rounded-lg bg-slate-800 text-white font-medium">Diskusi</a>
+            </div>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button onclick="openNewThread()"
+                    class="hidden sm:flex items-center space-x-2 px-4 py-2 gradient-bg rounded-lg font-medium hover:opacity-90 transition-all">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Buat Thread</span>
+            </button>
+            <a href="profile.html">
+                <img id="navAvatar" src="https://ui-avatars.com/api/?name=U&background=667eea&color=fff"
+                     class="w-8 h-8 rounded-full border-2 border-purple-500 object-cover">
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="bg-gradient-to-br from-blue-900/20 via-purple-900/10 to-slate-900 border-b border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 py-10">
+        <div class="text-center mb-6">
+            <div class="inline-flex items-center space-x-2 bg-blue-500/10 border border-blue-500/30 text-blue-400 px-4 py-1.5 rounded-full text-sm font-medium mb-4">
+                <span>💬</span><span>Forum Diskusi</span>
+            </div>
+            <h1 class="text-4xl font-extrabold mb-2"><span class="gradient-text">Tanya, Jawab</span> & Berbagi Ilmu</h1>
+            <p class="text-slate-400 text-lg">Forum komunitas penjahit — tips, trik, review bahan, dan semua tentang jahit.</p>
+        </div>
+        <!-- Search -->
+        <div class="max-w-xl mx-auto">
+            <div class="relative">
+                <svg class="absolute left-4 top-3.5 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input id="searchInput" type="text" placeholder="Cari diskusi..."
+                       class="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                       oninput="filterThreads()">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Main -->
+<div class="max-w-6xl mx-auto px-4 py-8 flex gap-6">
+
+    <!-- Thread list -->
+    <div class="flex-1 min-w-0">
+        <!-- Category chips -->
+        <div class="flex flex-wrap gap-2 mb-6">
+            <button onclick="filterCat('all',this)" class="cat-chip active px-4 py-1.5 bg-slate-800 text-slate-300 rounded-full text-sm font-medium hover:bg-slate-700 transition-all">Semua</button>
+            <button onclick="filterCat('tips',this)" class="cat-chip px-4 py-1.5 bg-slate-800 text-slate-300 rounded-full text-sm font-medium hover:bg-slate-700 transition-all">💡 Tips & Trik</button>
+            <button onclick="filterCat('tanya',this)" class="cat-chip px-4 py-1.5 bg-slate-800 text-slate-300 rounded-full text-sm font-medium hover:bg-slate-700 transition-all">❓ Tanya Jawab</button>
+            <button onclick="filterCat('review',this)" class="cat-chip px-4 py-1.5 bg-slate-800 text-slate-300 rounded-full text-sm font-medium hover:bg-slate-700 transition-all">⭐ Review</button>
+            <button onclick="filterCat('inspirasi',this)" class="cat-chip px-4 py-1.5 bg-slate-800 text-slate-300 rounded-full text-sm font-medium hover:bg-slate-700 transition-all">✨ Inspirasi</button>
+            <button onclick="filterCat('tutorial',this)" class="cat-chip px-4 py-1.5 bg-slate-800 text-slate-300 rounded-full text-sm font-medium hover:bg-slate-700 transition-all">📖 Tutorial</button>
+        </div>
+
+        <!-- Sort bar -->
+        <div class="flex items-center justify-between mb-4">
+            <p id="threadCount" class="text-sm text-slate-400"></p>
+            <select id="sortSelect" onchange="filterThreads()"
+                    class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <option value="newest">Terbaru</option>
+                <option value="popular">Terpopuler</option>
+                <option value="most_replies">Banyak Balasan</option>
+            </select>
+        </div>
+
+        <!-- Thread list -->
+        <div id="threadList" class="space-y-3">
+            <div class="text-center py-16">
+                <div class="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                <p class="text-slate-400 mt-4">Memuat diskusi...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="hidden lg:block w-64 flex-shrink-0 space-y-4">
+        <!-- Stats -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
+            <h3 class="font-bold mb-4">📊 Statistik Forum</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm"><span class="text-slate-400">Total Thread</span><span id="statThreads" class="font-semibold">—</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-400">Total Balasan</span><span id="statReplies" class="font-semibold">—</span></div>
+                <div class="flex justify-between text-sm"><span class="text-slate-400">Member Aktif</span><span id="statMembers" class="font-semibold">—</span></div>
+            </div>
+        </div>
+        <!-- Hot threads -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
+            <h3 class="font-bold mb-4">🔥 Thread Populer</h3>
+            <div id="hotThreads" class="space-y-3"></div>
+        </div>
+        <!-- New thread CTA -->
+        <button onclick="openNewThread()"
+                class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all text-sm">
+            + Mulai Diskusi Baru
+        </button>
+    </div>
+</div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- New Thread Modal -->
+<div id="newThreadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-slate-800 rounded-2xl p-7 w-full max-w-lg border border-slate-700">
+        <div class="flex items-center justify-between mb-5">
+            <h3 class="text-xl font-bold">💬 Buat Thread Baru</h3>
+            <button onclick="closeNewThread()" class="p-2 hover:bg-slate-700 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <form id="newThreadForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Judul Thread *</label>
+                <input type="text" id="threadTitle" required maxlength="150"
+                       placeholder="Tulis pertanyaan atau topik yang jelas..."
+                       class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Kategori *</label>
+                <select id="threadCategory" required class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                    <option value="">Pilih Kategori</option>
+                    <option value="tips">💡 Tips & Trik</option>
+                    <option value="tanya">❓ Tanya Jawab</option>
+                    <option value="review">⭐ Review</option>
+                    <option value="inspirasi">✨ Inspirasi</option>
+                    <option value="tutorial">📖 Tutorial</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Isi / Pertanyaan *</label>
+                <textarea id="threadBody" required rows="5"
+                          placeholder="Jelaskan secara detail... Anda bisa menyertakan konteks, sudah mencoba apa, dan apa yang diharapkan."
+                          class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-1">Tags (pisahkan koma)</label>
+                <input type="text" id="threadTags" placeholder="cth: mesin jahit, kain sutra, pola"
+                       class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
+            </div>
+            <button type="submit" id="postThreadBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                Posting Thread
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Thread Detail Modal -->
+<div id="threadDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+    <div class="bg-slate-900 rounded-2xl w-full max-w-2xl border border-slate-700 max-h-[92vh] overflow-hidden flex flex-col">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
+            <span id="tdCategory" class="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30"></span>
+            <button onclick="closeThreadDetail()" class="p-2 hover:bg-slate-800 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+        </div>
+        <!-- Scrollable content -->
+        <div class="flex-1 overflow-y-auto px-6 py-5">
+            <!-- Thread body -->
+            <div id="threadDetailContent"></div>
+            <!-- Replies -->
+            <div class="mt-6">
+                <h4 class="font-bold mb-4 flex items-center space-x-2">
+                    <span>💬 Balasan</span>
+                    <span id="replyCount" class="text-sm font-normal text-slate-400"></span>
+                </h4>
+                <div id="repliesList" class="space-y-3"></div>
+            </div>
+        </div>
+        <!-- Reply input -->
+        <div class="px-6 py-4 border-t border-slate-800 flex-shrink-0">
+            <div class="flex space-x-3">
+                <img id="replyAvatar" src="" class="w-9 h-9 rounded-full border border-slate-700 object-cover flex-shrink-0">
+                <div class="flex-1 flex space-x-2">
+                    <textarea id="replyInput" rows="2" placeholder="Tulis balasan Anda..."
+                              class="flex-1 px-4 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none text-sm"></textarea>
+                    <button onclick="submitReply()" id="submitReplyBtn"
+                            class="px-4 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all flex-shrink-0 self-end py-2.5 text-sm">
+                        Kirim
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import {
+    getFirestore, collection, addDoc, getDocs, getDoc,
+    doc, updateDoc, deleteDoc, query, orderBy,
+    arrayUnion, arrayRemove
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+const cfg = {
+    apiKey:"AIzaSyA8zCy3PBatjnCrEpLEZsfm8CeCYtssZI8",
+    authDomain:"nisa-stitchlink.firebaseapp.com",
+    projectId:"nisa-stitchlink",
+    storageBucket:"nisa-stitchlink.firebasestorage.app",
+    messagingSenderId:"226715367934",
+    appId:"1:226715367934:web:a444fa37eaf05878cd68af"
+};
+const app  = initializeApp(cfg);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+let me = null;
+let allThreads = [];
+let currentThread = null;
+let currentCat = 'all';
+
+// ── Auth ────────────────────────────────────────────
+onAuthStateChanged(auth, user => {
+    if (!user) { location.href='login.html'; return; }
+    me = user;
+    document.getElementById('navAvatar').src = user.photoURL ||
+        `https://ui-avatars.com/api/?name=${enc(user.displayName||'U')}&background=667eea&color=fff`;
+    document.getElementById('replyAvatar').src = user.photoURL ||
+        `https://ui-avatars.com/api/?name=${enc(user.displayName||'U')}&background=667eea&color=fff`;
+    loadThreads();
+});
+
+// ── Load ─────────────────────────────────────────────
+async function loadThreads() {
+    try {
+        const snap = await getDocs(query(collection(db,'discussions'), orderBy('createdAt','desc')));
+        allThreads = snap.docs.map(d=>({id:d.id,...d.data()}));
+        updateStats();
+        renderHotThreads();
+        filterThreads();
+    } catch(e) {
+        document.getElementById('threadList').innerHTML =
+            `<p class="text-center text-red-400 py-12">Gagal memuat: ${e.message}</p>`;
+    }
+}
+
+function updateStats() {
+    const totalReplies = allThreads.reduce((s,t)=>s+(t.replies?.length||0),0);
+    const authors = new Set(allThreads.map(t=>t.authorId));
+    document.getElementById('statThreads').textContent  = allThreads.length;
+    document.getElementById('statReplies').textContent  = totalReplies;
+    document.getElementById('statMembers').textContent  = authors.size;
+}
+
+function renderHotThreads() {
+    const hot = [...allThreads].sort((a,b)=>(b.upvotes?.length||0)-(a.upvotes?.length||0)).slice(0,5);
+    const el = document.getElementById('hotThreads');
+    el.innerHTML = hot.map(t=>`
+        <div class="cursor-pointer hover:text-purple-400 transition-colors" onclick="openThreadDetail('${t.id}')">
+            <p class="text-sm line-clamp-2 leading-snug">${esc(t.title)}</p>
+            <p class="text-xs text-slate-500 mt-0.5">▲ ${t.upvotes?.length||0} · 💬 ${t.replies?.length||0}</p>
+        </div>`).join('');
+}
+
+// ── Filter & Render ──────────────────────────────────
+window.filterCat = (cat, btn) => {
+    currentCat = cat;
+    document.querySelectorAll('.cat-chip').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    filterThreads();
+};
+
+window.filterThreads = () => {
+    const term = document.getElementById('searchInput').value.toLowerCase();
+    const sort = document.getElementById('sortSelect').value;
+    let filtered = [...allThreads];
+    if (currentCat !== 'all') filtered = filtered.filter(t=>t.category===currentCat);
+    if (term) filtered = filtered.filter(t=>t.title?.toLowerCase().includes(term)||t.body?.toLowerCase().includes(term)||(t.tags||[]).some(g=>g.toLowerCase().includes(term)));
+    if (sort==='popular')      filtered.sort((a,b)=>(b.upvotes?.length||0)-(a.upvotes?.length||0));
+    else if (sort==='most_replies') filtered.sort((a,b)=>(b.replies?.length||0)-(a.replies?.length||0));
+    else filtered.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    document.getElementById('threadCount').textContent = `${filtered.length} thread`;
+    renderThreadList(filtered);
+};
+
+const catEmoji = {tips:'💡',tanya:'❓',review:'⭐',inspirasi:'✨',tutorial:'📖'};
+const catColor = {tips:'blue',tanya:'yellow',review:'green',inspirasi:'purple',tutorial:'orange'};
+const colorMap = {blue:'bg-blue-500/20 text-blue-300 border-blue-500/30', yellow:'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', green:'bg-green-500/20 text-green-300 border-green-500/30', purple:'bg-purple-500/20 text-purple-300 border-purple-500/30', orange:'bg-orange-500/20 text-orange-300 border-orange-500/30'};
+
+function renderThreadList(threads) {
+    const list = document.getElementById('threadList');
+    if (!threads.length) {
+        list.innerHTML = `<div class="text-center py-16">
+            <p class="text-5xl mb-4">💬</p>
+            <p class="text-xl text-slate-400 font-medium">Belum ada diskusi</p>
+            <button onclick="openNewThread()" class="mt-4 px-6 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">+ Mulai Diskusi</button>
+        </div>`;
+        return;
+    }
+    list.innerHTML = threads.map(t => threadCard(t)).join('');
+}
+
+function threadCard(t) {
+    const col    = colorMap[catColor[t.category]] || colorMap.purple;
+    const hasUpvoted = t.upvotes?.includes(me?.uid);
+    const isOwn  = t.authorId === me?.uid;
+    const hasBestAnswer = t.replies?.some(r=>r.isBest);
+    return `
+    <div class="thread-card bg-slate-900 rounded-xl border border-slate-800 p-5 cursor-pointer fade-in" onclick="openThreadDetail('${t.id}')">
+        <div class="flex items-start space-x-4">
+            <!-- Upvote -->
+            <div class="flex flex-col items-center space-y-1 flex-shrink-0" onclick="event.stopPropagation()">
+                <button onclick="toggleUpvote('${t.id}')" id="upvoteBtn-${t.id}"
+                        class="p-1.5 rounded-lg hover:bg-slate-800 transition-all ${hasUpvoted?'upvoted text-purple-400':'text-slate-500 hover:text-white'}">
+                    <svg class="w-5 h-5" fill="${hasUpvoted?'#a78bfa':'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                </button>
+                <span id="upvoteCount-${t.id}" class="text-sm font-bold ${hasUpvoted?'text-purple-400':'text-slate-400'}">${t.upvotes?.length||0}</span>
+            </div>
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center flex-wrap gap-2 mb-2">
+                    <span class="text-xs px-2 py-0.5 rounded-full border ${col}">${catEmoji[t.category]||'💬'} ${t.category||'Umum'}</span>
+                    ${hasBestAnswer?`<span class="text-xs px-2 py-0.5 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full">✓ Terjawab</span>`:''}
+                    ${t.isPinned?`<span class="text-xs px-2 py-0.5 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded-full">📌 Disematkan</span>`:''}
+                </div>
+                <h3 class="font-bold text-base mb-1 line-clamp-2 hover:text-purple-400 transition-colors">${esc(t.title)}</h3>
+                <p class="text-slate-400 text-sm line-clamp-2 mb-3">${esc(t.body||'')}</p>
+                ${(t.tags||[]).length?`<div class="flex flex-wrap gap-1 mb-3">${t.tags.map(g=>`<span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">#${esc(g.trim())}</span>`).join('')}</div>`:''}
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <img src="${t.authorPhoto||`https://ui-avatars.com/api/?name=${enc(t.authorName||'U')}&background=667eea&color=fff`}"
+                             class="w-6 h-6 rounded-full object-cover border border-slate-700">
+                        <span class="text-xs text-slate-400">${esc(t.authorName||'User')}</span>
+                        <span class="text-xs text-slate-600">·</span>
+                        <span class="text-xs text-slate-500">${fmtRelative(t.createdAt)}</span>
+                    </div>
+                    <div class="flex items-center space-x-3 text-xs text-slate-500">
+                        <span>💬 ${t.replies?.length||0}</span>
+                        <span>👁 ${t.views||0}</span>
+                        ${isOwn?`<button onclick="deleteThread('${t.id}');event.stopPropagation();" class="text-red-400 hover:text-red-300 transition-colors">🗑</button>`:''}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>`;
+}
+
+// ── Upvote Thread ────────────────────────────────────
+window.toggleUpvote = async (threadId) => {
+    const tRef = doc(db,'discussions',threadId);
+    const snap = await getDoc(tRef);
+    if (!snap.exists()) return;
+    const data = snap.data();
+    const isUpvoted = data.upvotes?.includes(me.uid);
+    await updateDoc(tRef, { upvotes: isUpvoted ? arrayRemove(me.uid) : arrayUnion(me.uid) });
+    // Update local + UI
+    const idx = allThreads.findIndex(t=>t.id===threadId);
+    if (idx>-1) {
+        allThreads[idx].upvotes = isUpvoted
+            ? (allThreads[idx].upvotes||[]).filter(u=>u!==me.uid)
+            : [...(allThreads[idx].upvotes||[]), me.uid];
+        const newCount = allThreads[idx].upvotes.length;
+        const btn = document.getElementById(`upvoteBtn-${threadId}`);
+        const cnt = document.getElementById(`upvoteCount-${threadId}`);
+        const nowUpvoted = !isUpvoted;
+        if (btn) { btn.className = `p-1.5 rounded-lg hover:bg-slate-800 transition-all ${nowUpvoted?'upvoted text-purple-400':'text-slate-500 hover:text-white'}`; btn.querySelector('svg').setAttribute('fill',nowUpvoted?'#a78bfa':'none'); }
+        if (cnt) { cnt.textContent=newCount; cnt.className=`text-sm font-bold ${nowUpvoted?'text-purple-400':'text-slate-400'}`; }
+    }
+};
+
+// ── Thread Detail ────────────────────────────────────
+window.openThreadDetail = async (threadId) => {
+    const t = allThreads.find(x=>x.id===threadId);
+    if (!t) return;
+    currentThread = t;
+    // Increment view count
+    updateDoc(doc(db,'discussions',threadId),{ views:(t.views||0)+1 }).catch(()=>{});
+    t.views=(t.views||0)+1;
+
+    const col = colorMap[catColor[t.category]]||colorMap.purple;
+    document.getElementById('tdCategory').textContent = `${catEmoji[t.category]||'💬'} ${t.category}`;
+    document.getElementById('tdCategory').className = `text-xs px-2 py-1 rounded-full border ${col}`;
+    document.getElementById('replyCount').textContent = `(${t.replies?.length||0})`;
+
+    document.getElementById('threadDetailContent').innerHTML = `
+        <h2 class="text-2xl font-bold mb-1">${esc(t.title)}</h2>
+        <div class="flex items-center space-x-3 mb-4">
+            <img src="${t.authorPhoto||`https://ui-avatars.com/api/?name=${enc(t.authorName||'U')}&background=667eea&color=fff`}"
+                 class="w-8 h-8 rounded-full object-cover border border-slate-700">
+            <div>
+                <p class="text-sm font-medium">${esc(t.authorName||'User')}</p>
+                <p class="text-xs text-slate-400">${fmtRelative(t.createdAt)}</p>
+            </div>
+            <div class="ml-auto flex items-center space-x-1 text-slate-400">
+                <svg class="w-4 h-4" fill="${(t.upvotes||[]).includes(me.uid)?'#a78bfa':'none'}" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/></svg>
+                <span class="text-sm">${t.upvotes?.length||0}</span>
+            </div>
+        </div>
+        <div class="bg-slate-800/50 rounded-xl p-4 text-slate-300 text-sm leading-relaxed whitespace-pre-wrap mb-4">${esc(t.body||'')}</div>
+        ${(t.tags||[]).length?`<div class="flex flex-wrap gap-1">${t.tags.map(g=>`<span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">#${esc(g.trim())}</span>`).join('')}</div>`:''}
+    `;
+    renderReplies();
+    document.getElementById('threadDetailModal').classList.remove('hidden');
+};
+
+window.closeThreadDetail = () => {
+    document.getElementById('threadDetailModal').classList.add('hidden');
+    currentThread = null;
+};
+
+// ── Replies ──────────────────────────────────────────
+function renderReplies() {
+    const replies = currentThread?.replies||[];
+    const list = document.getElementById('repliesList');
+    if (!replies.length) {
+        list.innerHTML = '<p class="text-center text-slate-500 text-sm py-6">Belum ada balasan. Jadilah yang pertama!</p>';
+        return;
+    }
+    const isThreadOwner = currentThread.authorId === me.uid;
+    list.innerHTML = replies.map((r,i) => `
+        <div class="reply-card ${r.isBest?'best':''} bg-slate-800/60 rounded-xl p-4 pl-5">
+            <div class="flex items-start justify-between mb-2">
+                <div class="flex items-center space-x-2">
+                    <img src="${r.authorPhoto||`https://ui-avatars.com/api/?name=${enc(r.authorName||'U')}&background=667eea&color=fff`}"
+                         class="w-7 h-7 rounded-full object-cover border border-slate-700">
+                    <div>
+                        <p class="text-sm font-semibold">${esc(r.authorName||'User')}</p>
+                        <p class="text-xs text-slate-500">${fmtRelative(r.createdAt)}</p>
+                    </div>
+                    ${r.isBest?`<span class="ml-2 text-xs bg-green-500/20 text-green-300 border border-green-500/30 px-2 py-0.5 rounded-full">✓ Jawaban Terbaik</span>`:''}
+                </div>
+                <div class="flex items-center space-x-1">
+                    ${isThreadOwner && !r.isBest ? `<button onclick="markBestAnswer(${i})" class="text-xs px-2 py-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 rounded-lg transition-all border border-green-500/20">✓ Tandai Terbaik</button>` : ''}
+                    ${r.authorId===me.uid ? `<button onclick="deleteReply(${i})" class="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-all"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
+                </div>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">${esc(r.body)}</p>
+            <!-- Reply upvote -->
+            <div class="mt-3 flex items-center space-x-3">
+                <button onclick="toggleReplyUpvote(${i})" id="rupvoteBtn-${i}"
+                        class="flex items-center space-x-1 text-xs ${(r.upvotes||[]).includes(me.uid)?'text-purple-400':'text-slate-500'} hover:text-purple-400 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="${(r.upvotes||[]).includes(me.uid)?'#a78bfa':'none'}" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                    <span id="rupvoteCount-${i}">${r.upvotes?.length||0}</span>
+                </button>
+            </div>
+        </div>`).join('');
+}
+
+window.submitReply = async () => {
+    const input = document.getElementById('replyInput');
+    const body  = input.value.trim();
+    if (!body || !currentThread) return;
+    const btn = document.getElementById('submitReplyBtn');
+    btn.disabled=true; btn.textContent='Mengirim...';
+    const reply = {
+        authorId:me.uid, authorName:me.displayName||'User', authorPhoto:me.photoURL||'',
+        body, upvotes:[], isBest:false, createdAt:new Date().toISOString()
+    };
+    const replies = [...(currentThread.replies||[]), reply];
+    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
+    currentThread.replies = replies;
+    allThreads = allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    input.value='';
+    document.getElementById('replyCount').textContent=`(${replies.length})`;
+    renderReplies();
+    btn.disabled=false; btn.textContent='Kirim';
+};
+
+window.deleteReply = async (idx) => {
+    if (!confirm('Hapus balasan ini?')) return;
+    const replies = [...(currentThread.replies||[])];
+    replies.splice(idx,1);
+    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
+    currentThread.replies=replies;
+    allThreads=allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    document.getElementById('replyCount').textContent=`(${replies.length})`;
+    renderReplies();
+};
+
+window.markBestAnswer = async (idx) => {
+    const replies = (currentThread.replies||[]).map((r,i)=>({...r,isBest:i===idx}));
+    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
+    currentThread.replies=replies;
+    allThreads=allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    renderReplies();
+    filterThreads();
+};
+
+window.toggleReplyUpvote = async (idx) => {
+    const replies = [...(currentThread.replies||[])];
+    const reply = {...replies[idx]};
+    const upvotes = reply.upvotes||[];
+    const isUp = upvotes.includes(me.uid);
+    reply.upvotes = isUp ? upvotes.filter(u=>u!==me.uid) : [...upvotes, me.uid];
+    replies[idx]=reply;
+    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
+    currentThread.replies=replies;
+    allThreads=allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    const btn=document.getElementById(`rupvoteBtn-${idx}`);
+    const cnt=document.getElementById(`rupvoteCount-${idx}`);
+    const nowUp=!isUp;
+    if(btn){ btn.className=`flex items-center space-x-1 text-xs ${nowUp?'text-purple-400':'text-slate-500'} hover:text-purple-400 transition-colors`; btn.querySelector('svg').setAttribute('fill',nowUp?'#a78bfa':'none'); }
+    if(cnt) cnt.textContent=reply.upvotes.length;
+};
+
+// ── New Thread ───────────────────────────────────────
+window.openNewThread  = ()=>{ document.getElementById('newThreadModal').classList.remove('hidden'); };
+window.closeNewThread = ()=>{ document.getElementById('newThreadModal').classList.add('hidden'); document.getElementById('newThreadForm').reset(); };
+
+document.getElementById('newThreadForm').addEventListener('submit', async e=>{
+    e.preventDefault();
+    const btn=document.getElementById('postThreadBtn');
+    btn.disabled=true; btn.textContent='Memposting...';
+    try {
+        const tags = document.getElementById('threadTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+        const data = {
+            title:document.getElementById('threadTitle').value,
+            category:document.getElementById('threadCategory').value,
+            body:document.getElementById('threadBody').value,
+            tags, upvotes:[], replies:[], views:0, isPinned:false,
+            authorId:me.uid, authorName:me.displayName||'User', authorPhoto:me.photoURL||'',
+            createdAt:new Date().toISOString()
+        };
+        const ref=await addDoc(collection(db,'discussions'),data);
+        allThreads.unshift({id:ref.id,...data});
+        closeNewThread();
+        updateStats();
+        renderHotThreads();
+        filterThreads();
+    } catch(err){ alert('Gagal posting: '+err.message); }
+    finally{ btn.disabled=false; btn.textContent='Posting Thread'; }
+});
+
+window.deleteThread = async (threadId)=>{
+    if(!confirm('Hapus thread ini beserta semua balasannya?')) return;
+    await deleteDoc(doc(db,'discussions',threadId));
+    allThreads=allThreads.filter(t=>t.id!==threadId);
+    updateStats();
+    renderHotThreads();
+    filterThreads();
+};
+
+// ── Helpers ──────────────────────────────────────────
+function enc(s){ return encodeURIComponent(s||''); }
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function fmtRelative(d){
+    if(!d) return '';
+    const diff=Date.now()-new Date(d).getTime();
+    const m=Math.floor(diff/60000),h=Math.floor(diff/3600000),day=Math.floor(diff/86400000);
+    if(day>30) return new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+    if(day>0) return `${day} hari lalu`;
+    if(h>0) return `${h} jam lalu`;
+    if(m>0) return `${m} menit lalu`;
+    return 'Baru saja';
+}
+</script>
+</body>
+</html>
