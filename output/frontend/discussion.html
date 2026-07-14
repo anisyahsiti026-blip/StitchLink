@@ -279,19 +279,13 @@ async function loaddiskusis() {
 function updateStats() {
     const totalReplies = alldiskusis.reduce((s,t)=>s+(t.replies?.length||0),0);
     const authors = new Set(alldiskusis.map(t=>t.authorId));
-    document.getElementById('statdiskusis').textContent  = alldiskusis.length;
-    document.getElementById('statReplies').textContent  = totalReplies;
-    document.getElementById('statMembers').textContent  = authors.size;
+    // Stats sidebar removed - no longer needed
+    // Stats: ${alldiskusis.length} diskusi, ${totalReplies} balasan, ${authors.size} members
 }
 
 function renderHotdiskusis() {
-    const hot = [...alldiskusis].sort((a,b)=>(b.upvotes?.length||0)-(a.upvotes?.length||0)).slice(0,5);
-    const el = document.getElementById('hotdiskusis');
-    el.innerHTML = hot.map(t=>`
-        <div class="cursor-pointer hover:text-purple-400 transition-colors" onclick="opendiskusiDetail('${t.id}')">
-            <p class="text-sm line-clamp-2 leading-snug">${esc(t.title)}</p>
-            <p class="text-xs text-slate-500 mt-0.5">▲ ${t.upvotes?.length||0} · 💬 ${t.replies?.length||0}</p>
-        </div>`).join('');
+    // Hot diskusi sidebar removed - no longer needed
+    // Previously showed top 5 most upvoted discussions
 }
 
 // ── Filter & Render ──────────────────────────────────

@@ -254,7 +254,14 @@
         };
 
         window.toggleNotifications = () => {
-            document.getElementById('notificationsPanel').classList.toggle('hidden');
+            const panel = document.getElementById('notificationsPanel');
+            const isHidden = panel.classList.contains('hidden');
+            panel.classList.toggle('hidden');
+            
+            // Refresh notifications when opening panel
+            if (isHidden) {
+                loadNotifications();
+            }
         };
 
         document.getElementById('searchInput')?.addEventListener('input', filterPosts);
@@ -530,6 +537,7 @@
                 // Send notification if liking someone else's post
                 if (!isLiked && data.userId !== currentUser.uid) {
                     await addNotification(data.userId, 'like', { userName: currentUser.displayName || 'User', postId });
+                    console.log('✅ Like notification sent to:', data.userId);
                 }
             } catch (err) {
                 // Revert UI on failure
@@ -588,6 +596,7 @@
             const postSnap = await getDoc(postRef);
             if (postSnap.data().userId !== currentUser.uid) {
                 await addNotification(postSnap.data().userId, 'comment', { userName: currentUser.displayName, comment: text, postId });
+                console.log('✅ Comment notification sent to:', postSnap.data().userId);
             }
         };
 
@@ -722,21 +731,37 @@
 
         // Notifications
         async function loadNotifications() {
+            console.log('🔔 Loading notifications for user:', currentUser.uid);
             try {
-                const q = query(collection(db,'notifications'), where('userId','==',currentUser.uid), orderBy('createdAt','desc'));
+                // Try without orderBy first to avoid index issue
+                const q = query(collection(db,'notifications'), where('userId','==',currentUser.uid));
                 const snap = await getDocs(q);
                 notifications = [];
                 let unread = 0;
-                snap.forEach(d => { const n={id:d.id,...d.data()}; notifications.push(n); if(!n.read) unread++; });
+                snap.forEach(d => { 
+                    const n={id:d.id,...d.data()}; 
+                    notifications.push(n); 
+                    if(!n.read) unread++; 
+                });
+                // Sort manually by createdAt desc
+                notifications.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+                console.log('📊 Notifications loaded:', notifications.length, 'notifications, Unread:', unread);
+                console.log('📋 Notifications data:', notifications);
                 if (unread > 0) document.getElementById('notifBadge').classList.remove('hidden');
                 else document.getElementById('notifBadge').classList.add('hidden');
                 displayNotifications();
-            } catch(e) { console.error(e); }
+            } catch(e) { 
+                console.error('❌ Error loading notifications:', e);
+            }
         }
 
         function displayNotifications() {
+            console.log('🎨 Displaying notifications:', notifications.length);
             const list = document.getElementById('notificationsList');
-            if (!notifications.length) { list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Tidak ada notifikasi</p>'; return; }
+            if (!notifications.length) { 
+                list.innerHTML = '<p class="text-center text-slate-400 py-8 text-sm">Tidak ada notifikasi</p>'; 
+                return; 
+            }
             const icons = { like:'❤️', comment:'💬', follow:'👤', new_post:'📸' };
             const msgs = {
                 like: n => `${n.data?.userName} menyukai postingan Anda`,
@@ -744,7 +769,9 @@
                 follow: n => `${n.data?.userName} mulai mengikuti Anda`,
                 new_post: n => `${n.data?.userName} membuat postingan baru`
             };
-            list.innerHTML = notifications.map(n => `
+            list.innerHTML = notifications.map(n => {
+                console.log('🔔 Notification item:', n);
+                return `
                 <div class="p-3 hover:bg-slate-800 border-b border-slate-800 ${!n.read?'bg-slate-800/50':''}">
                     <div class="flex items-start space-x-3">
                         <span class="text-xl">${icons[n.type]||'🔔'}</span>
@@ -754,13 +781,17 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         async function addNotification(userId, type, data) {
             try {
                 await addDoc(collection(db,'notifications'), { userId, type, data, read:false, createdAt: new Date().toISOString() });
-            } catch(e) { console.error(e); }
+                console.log('✅ Notification created:', { userId, type, data });
+            } catch(e) { 
+                console.error('❌ Failed to create notification:', e);
+            }
         }
 
         window.markAllRead = async () => {
