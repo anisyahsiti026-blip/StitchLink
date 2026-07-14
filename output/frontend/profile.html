@@ -330,7 +330,11 @@
                             </div>
                         `
                         : `<div class="w-full h-full flex items-center justify-center p-4"><p class="text-slate-400 text-xs text-center line-clamp-4">${post.caption||'Post'}</p></div>`;
-                    el.onclick = () => window.location.href = 'dashboard.html';
+                    el.onclick = () => {
+                        // Don't redirect, stay on profile
+                        // Could open modal to view post detail in future
+                        console.log('Post clicked:', post.id);
+                    };
                     grid.appendChild(el);
                 });
 

@@ -62,7 +62,7 @@
                         <input type="checkbox" class="mr-2 rounded accent-purple-500">
                         <span>Ingat saya</span>
                     </label>
-                    <a href="#" class="gradient-text hover:underline">Lupa password?</a>
+                    <a href="#" onclick="openForgotPassword(); return false;" class="gradient-text hover:underline">Lupa password?</a>
                 </div>
                 <button type="submit" id="loginBtn"
                         class="w-full py-4 gradient-bg rounded-xl font-semibold text-white hover:opacity-90 transition-all transform hover:scale-[1.02] shadow-lg shadow-purple-500/30">
@@ -99,9 +99,39 @@
         <div id="errorMessage" class="hidden mt-4 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm text-center"></div>
     </div>
 
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div class="glass-card rounded-2xl p-8 w-full max-w-md border border-slate-700">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-2xl font-bold text-white">Lupa Password?</h3>
+                <button onclick="closeForgotPassword()" class="p-2 hover:bg-slate-700 rounded-lg transition-all">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <p class="text-slate-300 text-sm mb-6">
+                Masukkan email Anda dan kami akan mengirimkan link untuk reset password.
+            </p>
+            <form id="forgotPasswordForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Email</label>
+                    <input type="email" id="resetEmail" required
+                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                           placeholder="nama@email.com">
+                </div>
+                <button type="submit" id="resetBtn"
+                        class="w-full py-4 gradient-bg rounded-xl font-semibold text-white hover:opacity-90 transition-all transform hover:scale-[1.02] shadow-lg shadow-purple-500/30">
+                    Kirim Link Reset
+                </button>
+            </form>
+            <div id="resetMessage" class="hidden mt-4 p-4 rounded-xl text-sm text-center"></div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, sendPasswordResetEmail } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
         import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
         const firebaseConfig = {
@@ -198,6 +228,60 @@
             const inp = document.getElementById('password');
             inp.type = inp.type === 'password' ? 'text' : 'password';
         };
+
+        // Forgot Password Functions
+        window.openForgotPassword = () => {
+            document.getElementById('forgotPasswordModal').classList.remove('hidden');
+            document.getElementById('resetEmail').focus();
+        };
+
+        window.closeForgotPassword = () => {
+            document.getElementById('forgotPasswordModal').classList.add('hidden');
+            document.getElementById('forgotPasswordForm').reset();
+            document.getElementById('resetMessage').classList.add('hidden');
+        };
+
+        function showResetMessage(msg, isSuccess = true) {
+            const el = document.getElementById('resetMessage');
+            el.textContent = msg;
+            el.className = `mt-4 p-4 rounded-xl text-sm text-center ${
+                isSuccess 
+                    ? 'bg-green-500/10 border border-green-500/30 text-green-400' 
+                    : 'bg-red-500/10 border border-red-500/30 text-red-400'
+            }`;
+            el.classList.remove('hidden');
+        }
+
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('resetBtn');
+            const email = document.getElementById('resetEmail').value;
+            
+            setLoading(btn, true);
+            btn.textContent = 'Mengirim...';
+            
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showResetMessage('✅ Link reset password telah dikirim ke email Anda. Silakan cek inbox/spam.', true);
+                document.getElementById('forgotPasswordForm').reset();
+                
+                // Auto close after 3 seconds
+                setTimeout(() => {
+                    closeForgotPassword();
+                }, 3000);
+            } catch (err) {
+                console.error('Password reset error:', err);
+                const msgs = {
+                    'auth/user-not-found': 'Email tidak terdaftar.',
+                    'auth/invalid-email': 'Format email tidak valid.',
+                    'auth/too-many-requests': 'Terlalu banyak percobaan. Coba lagi nanti.'
+                };
+                showResetMessage(msgs[err.code] || 'Gagal mengirim email reset. Silakan coba lagi.', false);
+            } finally {
+                setLoading(btn, false);
+                btn.textContent = 'Kirim Link Reset';
+            }
+        });
     </script>
 </body>
 </html>

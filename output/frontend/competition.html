@@ -263,14 +263,31 @@ const CLOUD_NAME   = 'dmvaghjws';
 const UPLOAD_PRESET = 'tailor_community_uploads';
 
 let me = null;
+let meData = null;
+let isAdmin = false;
 let allComps = [];
 let currentComp = null;
 let currentTab = 'ongoing';
 
 // ── Auth ───────────────────────────────────────────
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
     if (!user) { location.href='login.html'; return; }
     me = user;
+    
+    // Load user data & check admin
+    try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        if (userSnap.exists()) {
+            meData = userSnap.data();
+            isAdmin = meData.role === 'admin';
+            if (isAdmin) {
+                console.log('Admin access granted');
+            }
+        }
+    } catch (e) {
+        console.error('Error loading user data:', e);
+    }
+    
     document.getElementById('navAvatar').src = user.photoURL ||
         `https://ui-avatars.com/api/?name=${enc(user.displayName||'U')}&background=667eea&color=fff`;
     loadCompetitions();
@@ -390,6 +407,9 @@ window.openCompDetail = async (compId) => {
     if (isOwner) {
         actions.innerHTML += `<button onclick="deleteComp('${c.id}')" class="px-4 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-xl font-semibold hover:bg-red-500/20 transition-all text-sm">🗑 Hapus</button>`;
     }
+    if (isAdmin && !isOwner) {
+        actions.innerHTML += `<button onclick="deleteComp('${c.id}')" class="px-4 py-3 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-xl font-semibold hover:bg-orange-500/20 transition-all text-sm" title="[ADMIN] Hapus kompetisi">🗑 [ADMIN] Hapus</button>`;
+    }
 
     renderEntries();
     document.getElementById('compDetailModal').classList.remove('hidden');
@@ -414,11 +434,22 @@ function renderEntries() {
         const isOwn    = e.userId === me.uid;
         const now = Date.now();
         const isOngoing = new Date(currentComp.startDate).getTime()<=now && new Date(currentComp.endDate).getTime()>=now;
+        const isCompOwner = currentComp.createdBy === me.uid;
         return `
         <div class="entry-card relative rounded-xl overflow-hidden border border-slate-700 bg-slate-800 group">
             ${i===0?'<span class="absolute top-2 left-2 z-10 text-lg">🥇</span>':''}
             ${i===1?'<span class="absolute top-2 left-2 z-10 text-lg">🥈</span>':''}
             ${i===2?'<span class="absolute top-2 left-2 z-10 text-lg">🥉</span>':''}
+            ${isAdmin && !isOwn ? `<button onclick="deleteCompetitionEntry('${e.userId}','${currentComp.id}'); event.stopPropagation();" class="absolute top-2 right-2 z-10 p-1.5 bg-orange-500/90 hover:bg-red-500 text-white rounded-full transition-all" title="[ADMIN] Hapus karya">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>` : ''}
+            ${isOwn && !isCompOwner ? `<button onclick="deleteCompetitionEntry('${e.userId}','${currentComp.id}'); event.stopPropagation();" class="absolute top-2 right-2 z-10 p-1.5 bg-slate-700/90 hover:bg-red-500 text-white rounded-full transition-all" title="Hapus karya saya">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+            </button>` : ''}
             ${e.imageUrl?`<img src="${e.imageUrl}" class="w-full h-36 object-cover">`:`<div class="w-full h-36 bg-slate-700 flex items-center justify-center text-4xl">🧵</div>`}
             <div class="vote-overlay absolute inset-0 bg-black/60 flex flex-col items-center justify-center space-y-2">
                 ${isOngoing && !isOwn ? `
@@ -458,6 +489,47 @@ window.toggleVote = async (entryUserId, compId) => {
     allComps = allComps.map(c=>c.id===compId?{...c,entries}:c);
     renderEntries();
     renderLeaderboard();
+};
+
+// Admin: Delete Competition Entry
+window.deleteCompetitionEntry = async (entryUserId, compId) => {
+    if (!isAdmin && entryUserId !== me.uid) {
+        alert('Anda tidak memiliki akses untuk menghapus karya ini!');
+        return;
+    }
+    
+    const isOwnEntry = entryUserId === me.uid;
+    const msg = isOwnEntry 
+        ? 'Hapus karya Anda dari kompetisi ini?' 
+        : '[ADMIN] Hapus karya ini dari kompetisi? (Karya melanggar aturan)';
+    
+    if (!confirm(msg)) return;
+    
+    try {
+        const compRef = doc(db, 'competitions', compId);
+        const snap = await getDoc(compRef);
+        if (!snap.exists()) return;
+        
+        const data = snap.data();
+        const entries = [...(data.entries || [])];
+        const filtered = entries.filter(e => e.userId !== entryUserId);
+        
+        await updateDoc(compRef, { entries: filtered });
+        
+        // Update local
+        currentComp.entries = filtered;
+        allComps = allComps.map(c => c.id === compId ? {...c, entries: filtered} : c);
+        
+        alert('Karya berhasil dihapus!');
+        renderEntries();
+        renderLeaderboard();
+        
+        // Update entry count in detail modal
+        document.getElementById('detailEntryCount').textContent = filtered.length;
+    } catch (err) {
+        console.error(err);
+        alert('Gagal menghapus karya: ' + err.message);
+    }
 };
 
 // ── Leaderboard ────────────────────────────────────
@@ -572,12 +644,33 @@ document.getElementById('createCompForm').addEventListener('submit', async e=>{
     finally{ btn.disabled=false; btn.textContent='Buat Kompetisi'; }
 });
 
-window.deleteComp = async (compId)=>{
-    if(!confirm('Hapus kompetisi ini? Semua data karya akan hilang.')) return;
-    await deleteDoc(doc(db,'competitions',compId));
-    allComps=allComps.filter(c=>c.id!==compId);
-    closeCompDetail();
-    renderComps();
+window.deleteComp = async (compId) => {
+    const comp = allComps.find(c => c.id === compId);
+    if (!comp) return;
+    
+    const isOwner = comp.createdBy === me.uid;
+    
+    if (!isAdmin && !isOwner) {
+        alert('Anda tidak memiliki akses untuk menghapus kompetisi ini!');
+        return;
+    }
+    
+    const msg = isAdmin && !isOwner
+        ? '[ADMIN] Hapus kompetisi ini? Kompetisi melanggar aturan. Semua data karya akan hilang.'
+        : 'Hapus kompetisi ini? Semua data karya akan hilang.';
+    
+    if (!confirm(msg)) return;
+    
+    try {
+        await deleteDoc(doc(db, 'competitions', compId));
+        allComps = allComps.filter(c => c.id !== compId);
+        alert('Kompetisi berhasil dihapus!');
+        closeCompDetail();
+        renderComps();
+    } catch (err) {
+        console.error(err);
+        alert('Gagal menghapus kompetisi: ' + err.message);
+    }
 };
 
 // ── Tab Switch ─────────────────────────────────────

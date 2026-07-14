@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -12,8 +12,8 @@
         .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         @keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
         .fade-in { animation: fadeIn .4s ease-out; }
-        .thread-card { transition: all .25s; border-left: 3px solid transparent; }
-        .thread-card:hover { border-left-color: #667eea; background: #1e293b; }
+        .diskusi-card { transition: all .25s; border-left: 3px solid transparent; }
+        .diskusi-card:hover { border-left-color: #667eea; background: #1e293b; }
         .upvoted svg { fill: #a78bfa; stroke: #a78bfa; }
         .reply-card { border-left: 2px solid #334155; }
         .reply-card.best { border-left-color: #22c55e; background: rgba(34,197,94,.05); }
@@ -44,12 +44,12 @@
             </div>
         </div>
         <div class="flex items-center space-x-2">
-            <button onclick="openNewThread()"
+            <button onclick="openNewdiskusi()"
                     class="hidden sm:flex items-center space-x-2 px-4 py-2 gradient-bg rounded-lg font-medium hover:opacity-90 transition-all">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                <span>Buat Thread</span>
+                <span>Mulai Diskusi</span>
             </button>
             <a href="profile.html">
                 <img id="navAvatar" src="https://ui-avatars.com/api/?name=U&background=667eea&color=fff"
@@ -77,7 +77,7 @@
                 </svg>
                 <input id="searchInput" type="text" placeholder="Cari diskusi..."
                        class="w-full pl-12 pr-4 py-3 bg-slate-800 border border-slate-700 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                       oninput="filterThreads()">
+                       oninput="filterdiskusis()">
             </div>
         </div>
     </div>
@@ -86,7 +86,7 @@
 <!-- Main -->
 <div class="max-w-6xl mx-auto px-4 py-8 flex gap-6">
 
-    <!-- Thread list -->
+    <!-- diskusi list -->
     <div class="flex-1 min-w-0">
         <!-- Category chips -->
         <div class="flex flex-wrap gap-2 mb-6">
@@ -100,8 +100,8 @@
 
         <!-- Sort bar -->
         <div class="flex items-center justify-between mb-4">
-            <p id="threadCount" class="text-sm text-slate-400"></p>
-            <select id="sortSelect" onchange="filterThreads()"
+            <p id="diskusiCount" class="text-sm text-slate-400"></p>
+            <select id="sortSelect" onchange="filterdiskusis()"
                     class="px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
                 <option value="newest">Terbaru</option>
                 <option value="popular">Terpopuler</option>
@@ -109,8 +109,8 @@
             </select>
         </div>
 
-        <!-- Thread list -->
-        <div id="threadList" class="space-y-3">
+        <!-- diskusi list -->
+        <div id="diskusiList" class="space-y-3">
             <div class="text-center py-16">
                 <div class="inline-block w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
                 <p class="text-slate-400 mt-4">Memuat diskusi...</p>
@@ -120,22 +120,8 @@
 
     <!-- Sidebar -->
     <div class="hidden lg:block w-64 flex-shrink-0 space-y-4">
-        <!-- Stats -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
-            <h3 class="font-bold mb-4">📊 Statistik Forum</h3>
-            <div class="space-y-3">
-                <div class="flex justify-between text-sm"><span class="text-slate-400">Total Thread</span><span id="statThreads" class="font-semibold">—</span></div>
-                <div class="flex justify-between text-sm"><span class="text-slate-400">Total Balasan</span><span id="statReplies" class="font-semibold">—</span></div>
-                <div class="flex justify-between text-sm"><span class="text-slate-400">Member Aktif</span><span id="statMembers" class="font-semibold">—</span></div>
-            </div>
-        </div>
-        <!-- Hot threads -->
-        <div class="bg-slate-900 rounded-2xl border border-slate-800 p-5">
-            <h3 class="font-bold mb-4">🔥 Thread Populer</h3>
-            <div id="hotThreads" class="space-y-3"></div>
-        </div>
-        <!-- New thread CTA -->
-        <button onclick="openNewThread()"
+        <!-- New diskusi CTA -->
+        <button onclick="openNewdiskusi()"
                 class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all text-sm">
             + Mulai Diskusi Baru
         </button>
@@ -144,23 +130,23 @@
 
 <!-- ═══ MODALS ═══ -->
 
-<!-- New Thread Modal -->
-<div id="newThreadModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+<!-- New diskusi Modal -->
+<div id="newdiskusiModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
     <div class="bg-slate-800 rounded-2xl p-7 w-full max-w-lg border border-slate-700">
         <div class="flex items-center justify-between mb-5">
-            <h3 class="text-xl font-bold">💬 Buat Thread Baru</h3>
-            <button onclick="closeNewThread()" class="p-2 hover:bg-slate-700 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <h3 class="text-xl font-bold">💬 Buat diskusi Baru</h3>
+            <button onclick="closeNewdiskusi()" class="p-2 hover:bg-slate-700 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
-        <form id="newThreadForm" class="space-y-4">
+        <form id="newdiskusiForm" class="space-y-4">
             <div>
-                <label class="block text-sm font-medium text-slate-300 mb-1">Judul Thread *</label>
-                <input type="text" id="threadTitle" required maxlength="150"
+                <label class="block text-sm font-medium text-slate-300 mb-1">Judul diskusi *</label>
+                <input type="text" id="diskusiTitle" required maxlength="150"
                        placeholder="Tulis pertanyaan atau topik yang jelas..."
                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-1">Kategori *</label>
-                <select id="threadCategory" required class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
+                <select id="diskusiCategory" required class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-500">
                     <option value="">Pilih Kategori</option>
                     <option value="tips">💡 Tips & Trik</option>
                     <option value="tanya">❓ Tanya Jawab</option>
@@ -171,34 +157,34 @@
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-1">Isi / Pertanyaan *</label>
-                <textarea id="threadBody" required rows="5"
+                <textarea id="diskusiBody" required rows="5"
                           placeholder="Jelaskan secara detail... Anda bisa menyertakan konteks, sudah mencoba apa, dan apa yang diharapkan."
                           class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"></textarea>
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-300 mb-1">Tags (pisahkan koma)</label>
-                <input type="text" id="threadTags" placeholder="cth: mesin jahit, kain sutra, pola"
+                <input type="text" id="diskusiTags" placeholder="cth: mesin jahit, kain sutra, pola"
                        class="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500">
             </div>
-            <button type="submit" id="postThreadBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
-                Posting Thread
+            <button type="submit" id="postdiskusiBtn" class="w-full py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">
+                Posting diskusi
             </button>
         </form>
     </div>
 </div>
 
-<!-- Thread Detail Modal -->
-<div id="threadDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
+<!-- diskusi Detail Modal -->
+<div id="diskusiDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
     <div class="bg-slate-900 rounded-2xl w-full max-w-2xl border border-slate-700 max-h-[92vh] overflow-hidden flex flex-col">
         <!-- Header -->
         <div class="px-6 py-4 border-b border-slate-800 flex items-center justify-between flex-shrink-0">
             <span id="tdCategory" class="text-xs bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full border border-purple-500/30"></span>
-            <button onclick="closeThreadDetail()" class="p-2 hover:bg-slate-800 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            <button onclick="closediskusiDetail()" class="p-2 hover:bg-slate-800 rounded-lg"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
         </div>
         <!-- Scrollable content -->
         <div class="flex-1 overflow-y-auto px-6 py-5">
-            <!-- Thread body -->
-            <div id="threadDetailContent"></div>
+            <!-- diskusi body -->
+            <div id="diskusiDetailContent"></div>
             <!-- Replies -->
             <div class="mt-6">
                 <h4 class="font-bold mb-4 flex items-center space-x-2">
@@ -247,48 +233,62 @@ const auth = getAuth(app);
 const db   = getFirestore(app);
 
 let me = null;
-let allThreads = [];
-let currentThread = null;
+let meData = null;
+let isAdmin = false;
+let alldiskusis = [];
+let currentdiskusi = null;
 let currentCat = 'all';
 
 // ── Auth ────────────────────────────────────────────
-onAuthStateChanged(auth, user => {
+onAuthStateChanged(auth, async user => {
     if (!user) { location.href='login.html'; return; }
     me = user;
+    
+    // Load user data & check admin
+    try {
+        const userSnap = await getDoc(doc(db, 'users', user.uid));
+        if (userSnap.exists()) {
+            meData = userSnap.data();
+            isAdmin = meData.role === 'admin';
+        }
+    } catch (e) {
+        console.error('Error loading user data:', e);
+    }
+    
     document.getElementById('navAvatar').src = user.photoURL ||
         `https://ui-avatars.com/api/?name=${enc(user.displayName||'U')}&background=667eea&color=fff`;
     document.getElementById('replyAvatar').src = user.photoURL ||
         `https://ui-avatars.com/api/?name=${enc(user.displayName||'U')}&background=667eea&color=fff`;
-    loadThreads();
+    loaddiskusis();
 });
 
 // ── Load ─────────────────────────────────────────────
-async function loadThreads() {
+async function loaddiskusis() {
     try {
         const snap = await getDocs(query(collection(db,'discussions'), orderBy('createdAt','desc')));
-        allThreads = snap.docs.map(d=>({id:d.id,...d.data()}));
+        alldiskusis = snap.docs.map(d=>({id:d.id,...d.data()}));
         updateStats();
-        renderHotThreads();
-        filterThreads();
+        renderHotdiskusis();
+        filterdiskusis();
     } catch(e) {
-        document.getElementById('threadList').innerHTML =
+        document.getElementById('diskusiList').innerHTML =
             `<p class="text-center text-red-400 py-12">Gagal memuat: ${e.message}</p>`;
     }
 }
 
 function updateStats() {
-    const totalReplies = allThreads.reduce((s,t)=>s+(t.replies?.length||0),0);
-    const authors = new Set(allThreads.map(t=>t.authorId));
-    document.getElementById('statThreads').textContent  = allThreads.length;
+    const totalReplies = alldiskusis.reduce((s,t)=>s+(t.replies?.length||0),0);
+    const authors = new Set(alldiskusis.map(t=>t.authorId));
+    document.getElementById('statdiskusis').textContent  = alldiskusis.length;
     document.getElementById('statReplies').textContent  = totalReplies;
     document.getElementById('statMembers').textContent  = authors.size;
 }
 
-function renderHotThreads() {
-    const hot = [...allThreads].sort((a,b)=>(b.upvotes?.length||0)-(a.upvotes?.length||0)).slice(0,5);
-    const el = document.getElementById('hotThreads');
+function renderHotdiskusis() {
+    const hot = [...alldiskusis].sort((a,b)=>(b.upvotes?.length||0)-(a.upvotes?.length||0)).slice(0,5);
+    const el = document.getElementById('hotdiskusis');
     el.innerHTML = hot.map(t=>`
-        <div class="cursor-pointer hover:text-purple-400 transition-colors" onclick="openThreadDetail('${t.id}')">
+        <div class="cursor-pointer hover:text-purple-400 transition-colors" onclick="opendiskusiDetail('${t.id}')">
             <p class="text-sm line-clamp-2 leading-snug">${esc(t.title)}</p>
             <p class="text-xs text-slate-500 mt-0.5">▲ ${t.upvotes?.length||0} · 💬 ${t.replies?.length||0}</p>
         </div>`).join('');
@@ -299,46 +299,46 @@ window.filterCat = (cat, btn) => {
     currentCat = cat;
     document.querySelectorAll('.cat-chip').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
-    filterThreads();
+    filterdiskusis();
 };
 
-window.filterThreads = () => {
+window.filterdiskusis = () => {
     const term = document.getElementById('searchInput').value.toLowerCase();
     const sort = document.getElementById('sortSelect').value;
-    let filtered = [...allThreads];
+    let filtered = [...alldiskusis];
     if (currentCat !== 'all') filtered = filtered.filter(t=>t.category===currentCat);
     if (term) filtered = filtered.filter(t=>t.title?.toLowerCase().includes(term)||t.body?.toLowerCase().includes(term)||(t.tags||[]).some(g=>g.toLowerCase().includes(term)));
     if (sort==='popular')      filtered.sort((a,b)=>(b.upvotes?.length||0)-(a.upvotes?.length||0));
     else if (sort==='most_replies') filtered.sort((a,b)=>(b.replies?.length||0)-(a.replies?.length||0));
     else filtered.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-    document.getElementById('threadCount').textContent = `${filtered.length} thread`;
-    renderThreadList(filtered);
+    document.getElementById('diskusiCount').textContent = `${filtered.length} diskusi`;
+    renderdiskusiList(filtered);
 };
 
 const catEmoji = {tips:'💡',tanya:'❓',review:'⭐',inspirasi:'✨',tutorial:'📖'};
 const catColor = {tips:'blue',tanya:'yellow',review:'green',inspirasi:'purple',tutorial:'orange'};
 const colorMap = {blue:'bg-blue-500/20 text-blue-300 border-blue-500/30', yellow:'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', green:'bg-green-500/20 text-green-300 border-green-500/30', purple:'bg-purple-500/20 text-purple-300 border-purple-500/30', orange:'bg-orange-500/20 text-orange-300 border-orange-500/30'};
 
-function renderThreadList(threads) {
-    const list = document.getElementById('threadList');
-    if (!threads.length) {
+function renderdiskusiList(diskusis) {
+    const list = document.getElementById('diskusiList');
+    if (!diskusis.length) {
         list.innerHTML = `<div class="text-center py-16">
             <p class="text-5xl mb-4">💬</p>
             <p class="text-xl text-slate-400 font-medium">Belum ada diskusi</p>
-            <button onclick="openNewThread()" class="mt-4 px-6 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">+ Mulai Diskusi</button>
+            <button onclick="openNewdiskusi()" class="mt-4 px-6 py-3 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all">+ Mulai Diskusi</button>
         </div>`;
         return;
     }
-    list.innerHTML = threads.map(t => threadCard(t)).join('');
+    list.innerHTML = diskusis.map(t => diskusiCard(t)).join('');
 }
 
-function threadCard(t) {
+function diskusiCard(t) {
     const col    = colorMap[catColor[t.category]] || colorMap.purple;
     const hasUpvoted = t.upvotes?.includes(me?.uid);
     const isOwn  = t.authorId === me?.uid;
     const hasBestAnswer = t.replies?.some(r=>r.isBest);
     return `
-    <div class="thread-card bg-slate-900 rounded-xl border border-slate-800 p-5 cursor-pointer fade-in" onclick="openThreadDetail('${t.id}')">
+    <div class="diskusi-card bg-slate-900 rounded-xl border border-slate-800 p-5 cursor-pointer fade-in" onclick="opendiskusiDetail('${t.id}')">
         <div class="flex items-start space-x-4">
             <!-- Upvote -->
             <div class="flex flex-col items-center space-y-1 flex-shrink-0" onclick="event.stopPropagation()">
@@ -371,7 +371,8 @@ function threadCard(t) {
                     <div class="flex items-center space-x-3 text-xs text-slate-500">
                         <span>💬 ${t.replies?.length||0}</span>
                         <span>👁 ${t.views||0}</span>
-                        ${isOwn?`<button onclick="deleteThread('${t.id}');event.stopPropagation();" class="text-red-400 hover:text-red-300 transition-colors">🗑</button>`:''}
+                        ${isOwn?`<button onclick="deletediskusi('${t.id}');event.stopPropagation();" class="text-red-400 hover:text-red-300 transition-colors" title="Hapus diskusi">🗑</button>`:''}
+                        ${isAdmin && !isOwn?`<button onclick="deletediskusi('${t.id}');event.stopPropagation();" class="text-orange-400 hover:text-red-300 transition-colors" title="[ADMIN] Hapus diskusi">🗑</button>`:''}
                     </div>
                 </div>
             </div>
@@ -379,36 +380,36 @@ function threadCard(t) {
     </div>`;
 }
 
-// ── Upvote Thread ────────────────────────────────────
-window.toggleUpvote = async (threadId) => {
-    const tRef = doc(db,'discussions',threadId);
+// ── Upvote diskusi ────────────────────────────────────
+window.toggleUpvote = async (diskusiId) => {
+    const tRef = doc(db,'discussions',diskusiId);
     const snap = await getDoc(tRef);
     if (!snap.exists()) return;
     const data = snap.data();
     const isUpvoted = data.upvotes?.includes(me.uid);
     await updateDoc(tRef, { upvotes: isUpvoted ? arrayRemove(me.uid) : arrayUnion(me.uid) });
     // Update local + UI
-    const idx = allThreads.findIndex(t=>t.id===threadId);
+    const idx = alldiskusis.findIndex(t=>t.id===diskusiId);
     if (idx>-1) {
-        allThreads[idx].upvotes = isUpvoted
-            ? (allThreads[idx].upvotes||[]).filter(u=>u!==me.uid)
-            : [...(allThreads[idx].upvotes||[]), me.uid];
-        const newCount = allThreads[idx].upvotes.length;
-        const btn = document.getElementById(`upvoteBtn-${threadId}`);
-        const cnt = document.getElementById(`upvoteCount-${threadId}`);
+        alldiskusis[idx].upvotes = isUpvoted
+            ? (alldiskusis[idx].upvotes||[]).filter(u=>u!==me.uid)
+            : [...(alldiskusis[idx].upvotes||[]), me.uid];
+        const newCount = alldiskusis[idx].upvotes.length;
+        const btn = document.getElementById(`upvoteBtn-${diskusiId}`);
+        const cnt = document.getElementById(`upvoteCount-${diskusiId}`);
         const nowUpvoted = !isUpvoted;
         if (btn) { btn.className = `p-1.5 rounded-lg hover:bg-slate-800 transition-all ${nowUpvoted?'upvoted text-purple-400':'text-slate-500 hover:text-white'}`; btn.querySelector('svg').setAttribute('fill',nowUpvoted?'#a78bfa':'none'); }
         if (cnt) { cnt.textContent=newCount; cnt.className=`text-sm font-bold ${nowUpvoted?'text-purple-400':'text-slate-400'}`; }
     }
 };
 
-// ── Thread Detail ────────────────────────────────────
-window.openThreadDetail = async (threadId) => {
-    const t = allThreads.find(x=>x.id===threadId);
+// ── diskusi Detail ────────────────────────────────────
+window.opendiskusiDetail = async (diskusiId) => {
+    const t = alldiskusis.find(x=>x.id===diskusiId);
     if (!t) return;
-    currentThread = t;
+    currentdiskusi = t;
     // Increment view count
-    updateDoc(doc(db,'discussions',threadId),{ views:(t.views||0)+1 }).catch(()=>{});
+    updateDoc(doc(db,'discussions',diskusiId),{ views:(t.views||0)+1 }).catch(()=>{});
     t.views=(t.views||0)+1;
 
     const col = colorMap[catColor[t.category]]||colorMap.purple;
@@ -416,7 +417,7 @@ window.openThreadDetail = async (threadId) => {
     document.getElementById('tdCategory').className = `text-xs px-2 py-1 rounded-full border ${col}`;
     document.getElementById('replyCount').textContent = `(${t.replies?.length||0})`;
 
-    document.getElementById('threadDetailContent').innerHTML = `
+    document.getElementById('diskusiDetailContent').innerHTML = `
         <h2 class="text-2xl font-bold mb-1">${esc(t.title)}</h2>
         <div class="flex items-center space-x-3 mb-4">
             <img src="${t.authorPhoto||`https://ui-avatars.com/api/?name=${enc(t.authorName||'U')}&background=667eea&color=fff`}"
@@ -434,23 +435,23 @@ window.openThreadDetail = async (threadId) => {
         ${(t.tags||[]).length?`<div class="flex flex-wrap gap-1">${t.tags.map(g=>`<span class="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">#${esc(g.trim())}</span>`).join('')}</div>`:''}
     `;
     renderReplies();
-    document.getElementById('threadDetailModal').classList.remove('hidden');
+    document.getElementById('diskusiDetailModal').classList.remove('hidden');
 };
 
-window.closeThreadDetail = () => {
-    document.getElementById('threadDetailModal').classList.add('hidden');
-    currentThread = null;
+window.closediskusiDetail = () => {
+    document.getElementById('diskusiDetailModal').classList.add('hidden');
+    currentdiskusi = null;
 };
 
 // ── Replies ──────────────────────────────────────────
 function renderReplies() {
-    const replies = currentThread?.replies||[];
+    const replies = currentdiskusi?.replies||[];
     const list = document.getElementById('repliesList');
     if (!replies.length) {
         list.innerHTML = '<p class="text-center text-slate-500 text-sm py-6">Belum ada balasan. Jadilah yang pertama!</p>';
         return;
     }
-    const isThreadOwner = currentThread.authorId === me.uid;
+    const isdiskusiOwner = currentdiskusi.authorId === me.uid;
     list.innerHTML = replies.map((r,i) => `
         <div class="reply-card ${r.isBest?'best':''} bg-slate-800/60 rounded-xl p-4 pl-5">
             <div class="flex items-start justify-between mb-2">
@@ -464,7 +465,7 @@ function renderReplies() {
                     ${r.isBest?`<span class="ml-2 text-xs bg-green-500/20 text-green-300 border border-green-500/30 px-2 py-0.5 rounded-full">✓ Jawaban Terbaik</span>`:''}
                 </div>
                 <div class="flex items-center space-x-1">
-                    ${isThreadOwner && !r.isBest ? `<button onclick="markBestAnswer(${i})" class="text-xs px-2 py-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 rounded-lg transition-all border border-green-500/20">✓ Tandai Terbaik</button>` : ''}
+                    ${isdiskusiOwner && !r.isBest ? `<button onclick="markBestAnswer(${i})" class="text-xs px-2 py-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 rounded-lg transition-all border border-green-500/20">✓ Tandai Terbaik</button>` : ''}
                     ${r.authorId===me.uid ? `<button onclick="deleteReply(${i})" class="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-700 rounded-lg transition-all"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : ''}
                 </div>
             </div>
@@ -485,17 +486,17 @@ function renderReplies() {
 window.submitReply = async () => {
     const input = document.getElementById('replyInput');
     const body  = input.value.trim();
-    if (!body || !currentThread) return;
+    if (!body || !currentdiskusi) return;
     const btn = document.getElementById('submitReplyBtn');
     btn.disabled=true; btn.textContent='Mengirim...';
     const reply = {
         authorId:me.uid, authorName:me.displayName||'User', authorPhoto:me.photoURL||'',
         body, upvotes:[], isBest:false, createdAt:new Date().toISOString()
     };
-    const replies = [...(currentThread.replies||[]), reply];
-    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
-    currentThread.replies = replies;
-    allThreads = allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    const replies = [...(currentdiskusi.replies||[]), reply];
+    await updateDoc(doc(db,'discussions',currentdiskusi.id),{replies});
+    currentdiskusi.replies = replies;
+    alldiskusis = alldiskusis.map(t=>t.id===currentdiskusi.id?currentdiskusi:t);
     input.value='';
     document.getElementById('replyCount').textContent=`(${replies.length})`;
     renderReplies();
@@ -504,34 +505,34 @@ window.submitReply = async () => {
 
 window.deleteReply = async (idx) => {
     if (!confirm('Hapus balasan ini?')) return;
-    const replies = [...(currentThread.replies||[])];
+    const replies = [...(currentdiskusi.replies||[])];
     replies.splice(idx,1);
-    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
-    currentThread.replies=replies;
-    allThreads=allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    await updateDoc(doc(db,'discussions',currentdiskusi.id),{replies});
+    currentdiskusi.replies=replies;
+    alldiskusis=alldiskusis.map(t=>t.id===currentdiskusi.id?currentdiskusi:t);
     document.getElementById('replyCount').textContent=`(${replies.length})`;
     renderReplies();
 };
 
 window.markBestAnswer = async (idx) => {
-    const replies = (currentThread.replies||[]).map((r,i)=>({...r,isBest:i===idx}));
-    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
-    currentThread.replies=replies;
-    allThreads=allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    const replies = (currentdiskusi.replies||[]).map((r,i)=>({...r,isBest:i===idx}));
+    await updateDoc(doc(db,'discussions',currentdiskusi.id),{replies});
+    currentdiskusi.replies=replies;
+    alldiskusis=alldiskusis.map(t=>t.id===currentdiskusi.id?currentdiskusi:t);
     renderReplies();
-    filterThreads();
+    filterdiskusis();
 };
 
 window.toggleReplyUpvote = async (idx) => {
-    const replies = [...(currentThread.replies||[])];
+    const replies = [...(currentdiskusi.replies||[])];
     const reply = {...replies[idx]};
     const upvotes = reply.upvotes||[];
     const isUp = upvotes.includes(me.uid);
     reply.upvotes = isUp ? upvotes.filter(u=>u!==me.uid) : [...upvotes, me.uid];
     replies[idx]=reply;
-    await updateDoc(doc(db,'discussions',currentThread.id),{replies});
-    currentThread.replies=replies;
-    allThreads=allThreads.map(t=>t.id===currentThread.id?currentThread:t);
+    await updateDoc(doc(db,'discussions',currentdiskusi.id),{replies});
+    currentdiskusi.replies=replies;
+    alldiskusis=alldiskusis.map(t=>t.id===currentdiskusi.id?currentdiskusi:t);
     const btn=document.getElementById(`rupvoteBtn-${idx}`);
     const cnt=document.getElementById(`rupvoteCount-${idx}`);
     const nowUp=!isUp;
@@ -539,41 +540,41 @@ window.toggleReplyUpvote = async (idx) => {
     if(cnt) cnt.textContent=reply.upvotes.length;
 };
 
-// ── New Thread ───────────────────────────────────────
-window.openNewThread  = ()=>{ document.getElementById('newThreadModal').classList.remove('hidden'); };
-window.closeNewThread = ()=>{ document.getElementById('newThreadModal').classList.add('hidden'); document.getElementById('newThreadForm').reset(); };
+// ── New diskusi ───────────────────────────────────────
+window.openNewdiskusi  = ()=>{ document.getElementById('newdiskusiModal').classList.remove('hidden'); };
+window.closeNewdiskusi = ()=>{ document.getElementById('newdiskusiModal').classList.add('hidden'); document.getElementById('newdiskusiForm').reset(); };
 
-document.getElementById('newThreadForm').addEventListener('submit', async e=>{
+document.getElementById('newdiskusiForm').addEventListener('submit', async e=>{
     e.preventDefault();
-    const btn=document.getElementById('postThreadBtn');
+    const btn=document.getElementById('postdiskusiBtn');
     btn.disabled=true; btn.textContent='Memposting...';
     try {
-        const tags = document.getElementById('threadTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+        const tags = document.getElementById('diskusiTags').value.split(',').map(t=>t.trim()).filter(Boolean);
         const data = {
-            title:document.getElementById('threadTitle').value,
-            category:document.getElementById('threadCategory').value,
-            body:document.getElementById('threadBody').value,
+            title:document.getElementById('diskusiTitle').value,
+            category:document.getElementById('diskusiCategory').value,
+            body:document.getElementById('diskusiBody').value,
             tags, upvotes:[], replies:[], views:0, isPinned:false,
             authorId:me.uid, authorName:me.displayName||'User', authorPhoto:me.photoURL||'',
             createdAt:new Date().toISOString()
         };
         const ref=await addDoc(collection(db,'discussions'),data);
-        allThreads.unshift({id:ref.id,...data});
-        closeNewThread();
+        alldiskusis.unshift({id:ref.id,...data});
+        closeNewdiskusi();
         updateStats();
-        renderHotThreads();
-        filterThreads();
+        renderHotdiskusis();
+        filterdiskusis();
     } catch(err){ alert('Gagal posting: '+err.message); }
-    finally{ btn.disabled=false; btn.textContent='Posting Thread'; }
+    finally{ btn.disabled=false; btn.textContent='Posting diskusi'; }
 });
 
-window.deleteThread = async (threadId)=>{
-    if(!confirm('Hapus thread ini beserta semua balasannya?')) return;
-    await deleteDoc(doc(db,'discussions',threadId));
-    allThreads=allThreads.filter(t=>t.id!==threadId);
+window.deletediskusi = async (diskusiId)=>{
+    if(!confirm('Hapus diskusi ini beserta semua balasannya?')) return;
+    await deleteDoc(doc(db,'discussions',diskusiId));
+    alldiskusis=alldiskusis.filter(t=>t.id!==diskusiId);
     updateStats();
-    renderHotThreads();
-    filterThreads();
+    renderHotdiskusis();
+    filterdiskusis();
 };
 
 // ── Helpers ──────────────────────────────────────────
