@@ -5,24 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - StitchLink</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="batik-theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Outfit', sans-serif; }
-        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .gradient-text { background: linear-gradient(135deg, #d4a574 0%, #8b6f47 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #d4a574 0%, #8b6f47 100%); }
         .card-hover { transition: all 0.3s ease; }
-        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(102,126,234,0.15); }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(212,165,116,0.15); }
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         .fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 10px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
+        @keyframes pulse-ring { 0% { box-shadow: 0 0 0 0 rgba(212,165,116,0.7); } 70% { box-shadow: 0 0 0 10px rgba(212,165,116,0); } 100% { box-shadow: 0 0 0 0 rgba(212,165,116,0); } }
         .notification-badge { animation: pulse-ring 1.5s infinite; }
-        .liked { color: #ef4444; fill: #ef4444; }
-        .following-btn { background: #475569 !important; }
+        .liked { color: #d4a574; fill: #d4a574; }
+        .following-btn { background: #5d4a3a !important; }
     </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen">
+<body class="bg-[#3d2517] text-white min-h-screen">
     <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-lg border-b border-slate-800">
+    <nav class="sticky top-0 z-50 bg-[#2d1810]/95 backdrop-blur-lg border-b border-[#4d3020]">
         <div class="max-w-6xl mx-auto px-4 py-3">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-6">

@@ -5,21 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - StitchLink</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="batik-theme.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { font-family: 'Outfit', sans-serif; }
-        .gradient-text { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .profile-header { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+        .gradient-text { background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .gradient-bg { background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%); }
+        .profile-header { 
+            background: linear-gradient(180deg, #3d2023 0%, #2d1810 100%); 
+            color: white;
+        }
+        .profile-header * {
+            color: white !important;
+        }
         @keyframes fadeIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
         .fade-in { animation: fadeIn 0.5s ease-out; }
         .grid-item { transition: transform 0.3s ease; }
         .grid-item:hover { transform: scale(1.03); }
     </style>
 </head>
-<body class="bg-slate-950 text-white min-h-screen">
+<body class="min-h-screen" style="background-color: #F7F2E4;">
     <!-- Navbar -->
-    <nav class="bg-slate-900 border-b border-slate-800">
+    <nav style="background-color: rgba(61, 32, 35, 0.95); border-bottom: 1px solid #BB8A5A;">
         <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-6">
                 <a href="dashboard.html" class="flex items-center space-x-2">
@@ -28,18 +35,18 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"></path>
                         </svg>
                     </div>
-                    <span class="text-lg font-bold hidden sm:block">StitchLink</span>
+                    <span class="text-lg font-bold hidden sm:block" style="color: white;">StitchLink</span>
                 </a>
                 <div class="hidden md:flex space-x-1">
-                    <a href="dashboard.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Home</a>
-                    <a href="messages.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Chat</a>
-                        <a href="competition.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Kompetisi</a>
-                        <a href="discussion.html" class="px-4 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all">Diskusi</a>
+                    <a href="dashboard.html" class="px-4 py-2 rounded-lg transition-all" style="color: white;">Home</a>
+                    <a href="messages.html" class="px-4 py-2 rounded-lg transition-all" style="color: white;">Chat</a>
+                    <a href="competition.html" class="px-4 py-2 rounded-lg transition-all" style="color: white;">Kompetisi</a>
+                    <a href="discussion.html" class="px-4 py-2 rounded-lg transition-all" style="color: white;">Diskusi</a>
                 </div>
             </div>
             <div class="flex items-center space-x-3">
-                <button id="myProfileBtn" onclick="window.location.href='profile.html'" class="px-4 py-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-all text-sm">Profil Saya</button>
-                <button onclick="logout()" class="px-4 py-2 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg transition-all text-sm">Logout</button>
+                <button id="myProfileBtn" onclick="window.location.href='profile.html'" class="px-4 py-2 rounded-lg transition-all text-sm" style="color: white;">Profil Saya</button>
+                <button onclick="logout()" class="px-4 py-2 rounded-lg transition-all text-sm" style="color: white;">Logout</button>
             </div>
         </div>
     </nav>
@@ -50,8 +57,8 @@
             <div class="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
                 <!-- Avatar -->
                 <div class="relative flex-shrink-0">
-                    <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=667eea&color=fff&size=150"
-                         class="w-32 h-32 rounded-full border-4 border-purple-500 shadow-2xl object-cover">
+                    <img id="profileAvatar" src="https://ui-avatars.com/api/?name=User&background=BB8A5A&color=fff&size=150"
+                         class="w-32 h-32 rounded-full shadow-2xl object-cover" style="border: 4px solid #BB8A5A;">
                     <!-- Edit button only for own profile -->
                     <button id="editAvatarBtn" onclick="openEditModal()" class="hidden absolute bottom-0 right-0 w-10 h-10 gradient-bg rounded-full flex items-center justify-center shadow-lg hover:opacity-90 transition-all">
                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,35 +69,35 @@
 
                 <!-- Info -->
                 <div class="flex-1 text-center md:text-left">
-                    <h1 id="profileName" class="text-3xl font-bold mb-1">Loading...</h1>
-                    <p id="profileEmail" class="text-slate-400 mb-3 text-sm"></p>
-                    <p id="profileBio" class="text-slate-300 mb-4 max-w-md"></p>
+                    <h1 id="profileName" class="text-3xl font-bold mb-1" style="color: white;">Loading...</h1>
+                    <p id="profileEmail" class="mb-3 text-sm" style="color: #E9DBC2;"></p>
+                    <p id="profileBio" class="mb-4 max-w-md" style="color: #F7F2E4;"></p>
 
                     <div class="flex flex-wrap gap-3 justify-center md:justify-start mb-4">
-                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                        <div class="px-5 py-3 rounded-xl" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
                             <div class="text-xl font-bold gradient-text" id="postCount">0</div>
-                            <div class="text-xs text-slate-400">Postingan</div>
+                            <div class="text-xs" style="color: #E9DBC2;">Postingan</div>
                         </div>
-                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                        <div class="px-5 py-3 rounded-xl" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
                             <div class="text-xl font-bold gradient-text" id="followerCount">0</div>
-                            <div class="text-xs text-slate-400">Pengikut</div>
+                            <div class="text-xs" style="color: #E9DBC2;">Pengikut</div>
                         </div>
-                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                        <div class="px-5 py-3 rounded-xl" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
                             <div class="text-xl font-bold gradient-text" id="followingCount">0</div>
-                            <div class="text-xs text-slate-400">Mengikuti</div>
+                            <div class="text-xs" style="color: #E9DBC2;">Mengikuti</div>
                         </div>
-                        <div class="bg-slate-800 px-5 py-3 rounded-xl border border-slate-700">
+                        <div class="px-5 py-3 rounded-xl" style="background-color: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);">
                             <div class="text-xl font-bold gradient-text" id="likeCount">0</div>
-                            <div class="text-xs text-slate-400">Total Likes</div>
+                            <div class="text-xs" style="color: #E9DBC2;">Total Likes</div>
                         </div>
                     </div>
 
                     <!-- Action buttons for other users' profiles -->
                     <div id="otherUserActions" class="hidden flex flex-wrap gap-3 justify-center md:justify-start">
-                        <button id="followBtn" onclick="toggleFollow()" class="px-6 py-2 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all text-sm">
+                        <button id="followBtn" onclick="toggleFollow()" class="px-6 py-2 gradient-bg rounded-xl font-semibold hover:opacity-90 transition-all text-sm" style="color: white;">
                             Follow
                         </button>
-                        <button onclick="sendMessage()" class="px-6 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl font-semibold transition-all text-sm flex items-center space-x-2">
+                        <button onclick="sendMessage()" class="px-6 py-2 rounded-xl font-semibold transition-all text-sm flex items-center space-x-2" style="background-color: rgba(255, 255, 255, 0.2); color: white;">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
                             </svg>
