@@ -127,16 +127,21 @@ nav svg path {
 }
 
 /* Admin badge - WHITE text on GOLD background */
-#adminBadge,
-nav #adminBadge,
-nav .text-xs.text-purple-400,
-span.text-xs.text-purple-400 {
+#adminBadge:not(.hidden),
+nav #adminBadge:not(.hidden) {
     color: #FFFFFF !important;
     background-color: #D4A027 !important;
     padding: 2px 8px !important;
     border-radius: 6px !important;
     font-weight: 700 !important;
     display: inline-block !important;
+}
+
+/* HIDE admin badge when it has .hidden class */
+#adminBadge.hidden,
+nav #adminBadge.hidden,
+span.text-xs.text-purple-400.hidden {
+    display: none !important;
 }
 
 /* Avatar border - change from purple to brown */
@@ -1103,17 +1108,23 @@ nav a[href="discussion.html"] {
     color: #FFFFFF !important;
 }
 
-/* Admin badge in navbar - WHITE on GOLD */
-#adminBadge,
-nav #adminBadge,
-nav .text-xs.text-purple-400,
-span.text-xs.font-semibold {
+/* Admin badge - ONLY show if NOT hidden */
+#adminBadge:not(.hidden),
+nav #adminBadge:not(.hidden) {
+    display: inline-block !important;
     color: #FFFFFF !important;
     background-color: #D4A027 !important;
     padding: 2px 8px !important;
     border-radius: 6px !important;
     font-weight: 700 !important;
-    display: inline-block !important;
+}
+
+/* FORCE HIDE when has .hidden class */
+#adminBadge.hidden,
+nav #adminBadge.hidden,
+span#adminBadge.hidden {
+    display: none !important;
+    visibility: hidden !important;
 }
 
 /* Profile link hover state */
@@ -1122,8 +1133,7 @@ nav a[href="profile.html"]:hover {
     background-color: rgba(187, 138, 90, 0.2) !important;
 }
 
-nav a[href="profile.html"] *,
-nav a[href="profile.html"] span {
+nav a[href="profile.html"] *:not(#adminBadge.hidden) {
     color: #FFFFFF !important;
 }
 
@@ -1135,9 +1145,9 @@ nav a[href="profile.html"] span {
 }
 
 /* Make absolutely sure navbar text is white */
-nav .hidden.sm\\:block span,
-nav .hidden.sm\\:block,
-nav .hidden.sm\\:block * {
+nav .hidden.sm\\:block span:not(#adminBadge.hidden),
+nav .hidden.sm\\:block:not(#adminBadge.hidden),
+nav .hidden.sm\\:block *:not(#adminBadge.hidden) {
     color: #FFFFFF !important;
 }
 
@@ -1151,7 +1161,7 @@ nav .space-x-1 * {
 
 /* Right side items */
 nav .flex.items-center.space-x-2,
-nav .flex.items-center.space-x-2 * {
+nav .flex.items-center.space-x-2 *:not(#adminBadge.hidden) {
     color: #FFFFFF !important;
 }
 
@@ -1373,4 +1383,24 @@ p.text-xs {
 .card-hover:hover p,
 .card-hover:hover span {
     background-color: transparent !important;
+}
+
+/* ========================================
+   ADMIN BADGE - HIDDEN BY DEFAULT
+   ======================================== */
+
+/* Admin badge should be hidden by default, only show when JS adds class */
+#adminBadge.hidden,
+span#adminBadge.hidden {
+    display: none !important;
+}
+
+/* Only show when hidden class is removed */
+#adminBadge:not(.hidden) {
+    display: inline-block !important;
+    color: #FFFFFF !important;
+    background-color: #D4A027 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
 }

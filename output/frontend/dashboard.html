@@ -214,12 +214,30 @@
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                document.getElementById('navName').textContent = user.displayName || 'User';
-                document.getElementById('navAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName||'User')}&background=667eea&color=fff`;
+                // Set initial name from Firebase Auth
+                let displayName = user.displayName || user.email?.split('@')[0] || 'User';
+                document.getElementById('navName').textContent = displayName;
+                document.getElementById('navAvatar').src = user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=667eea&color=fff`;
+                
                 // Load user data from Firestore for following list
                 const userSnap = await getDoc(doc(db, 'users', user.uid));
                 if (userSnap.exists()) {
                     currentUserData = userSnap.data();
+                    
+                    // Update name with Firestore data (more accurate)
+                    displayName = currentUserData.displayName || currentUserData.name || user.displayName || user.email?.split('@')[0] || 'User';
+                    document.getElementById('navName').textContent = displayName;
+                    
+                    // Update avatar with Firestore data
+                    const photoURL = currentUserData.photoURL || user.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=667eea&color=fff`;
+                    document.getElementById('navAvatar').src = photoURL;
+                    
+                    // If displayName is missing in Firestore, update it
+                    if (!currentUserData.displayName && displayName !== 'User') {
+                        await updateDoc(doc(db, 'users', user.uid), { displayName: displayName });
+                        currentUserData.displayName = displayName;
+                    }
+                    
                     // Check if user is admin
                     isAdmin = currentUserData.role === 'admin';
                     if (isAdmin) {
