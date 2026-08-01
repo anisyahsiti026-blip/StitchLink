@@ -49,48 +49,137 @@ section.bg-gradient-to-br {
     background: var(--batik-cream) !important;
 }
 
-/* Navbar - Brown WITH WHITE TEXT */
-nav {
-    background-color: var(--navbar-bg) !important;
-    border-bottom-color: var(--batik-medium) !important;
+/* ========================================
+   NAVBAR - MAXIMUM PRIORITY WHITE TEXT
+   ======================================== */
+
+/* Navbar background - ALWAYS DARK BROWN */
+nav,
+nav.sticky,
+nav.bg-slate-900,
+.bg-slate-900\/95,
+.bg-\\[\\#2d1810\\]\/95 {
+    background-color: rgba(61, 32, 35, 0.95) !important;
+    border-bottom: 1px solid rgba(187, 138, 90, 0.3) !important;
 }
 
-/* FORCE WHITE TEXT IN NAVBAR */
-nav *:not(.gradient-bg):not(.gradient-bg *) {
-    color: var(--navbar-text) !important;
+/* FORCE ALL NAVBAR TEXT TO BE WHITE - ABSOLUTE PRIORITY */
+nav,
+nav *:not(.gradient-bg):not(.gradient-bg *),
+nav span,
+nav a,
+nav div,
+nav button,
+nav p,
+nav .text-sm,
+nav .text-xs,
+nav .text-lg,
+nav .font-medium,
+nav .font-bold,
+nav .font-semibold,
+nav #navName,
+nav #adminBadge,
+nav .text-slate-400,
+nav .text-purple-400,
+nav .text-white,
+a[href="dashboard.html"],
+a[href="messages.html"],
+a[href="competition.html"],
+a[href="discussion.html"],
+a[href="profile.html"] span {
+    color: #FFFFFF !important;
 }
 
-nav a:not(.gradient-bg) {
-    color: var(--navbar-text) !important;
+/* Navbar brand/logo text */
+nav .text-lg.font-bold,
+nav span.text-lg {
+    color: #FFFFFF !important;
 }
 
-nav span:not(.gradient-bg *) {
-    color: var(--navbar-text) !important;
+/* Navbar menu links */
+nav .hidden.md\\:flex a,
+nav .space-x-1 a {
+    color: #FFFFFF !important;
 }
 
-nav div:not(.gradient-bg) {
-    color: var(--navbar-text) !important;
+/* Navbar hover states */
+nav a:hover:not(.gradient-bg),
+nav button:hover:not(.gradient-bg) {
+    color: #FFFFFF !important;
+    opacity: 0.9;
 }
 
-nav a:hover:not(.gradient-bg) {
-    color: var(--navbar-hover) !important;
+/* Active nav link - keep dark brown background */
+nav a.bg-slate-800,
+nav a.font-medium,
+nav a.text-white.font-medium {
+    background-color: rgba(122, 71, 16, 0.6) !important;
+    color: #FFFFFF !important;
+}
+
+/* SVG icons in navbar */
+nav svg,
+nav svg *,
+nav svg path {
+    color: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+    fill: none !important;
+}
+
+/* Admin badge - WHITE text on GOLD background */
+#adminBadge,
+nav #adminBadge,
+nav .text-xs.text-purple-400,
+span.text-xs.text-purple-400 {
+    color: #FFFFFF !important;
+    background-color: #D4A027 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    display: inline-block !important;
+}
+
+/* Avatar border - change from purple to brown */
+nav img.border-purple-500,
+nav img.border-2,
+#navAvatar {
+    border-color: #BB8A5A !important;
 }
 
 /* Cards & Containers - Light Cream */
-.bg-slate-900,
-.bg-slate-950 {
+.bg-slate-900:not(nav):not(nav *),
+.bg-slate-950:not(nav):not(nav *) {
     background-color: #FFFFFF !important; /* White Cards */
-    color: var(--batik-dark) !important;
+    color: #2d1810 !important;
 }
 
-.bg-slate-800 {
-    background-color: var(--batik-beige) !important; /* Beige */
-    color: var(--batik-dark) !important;
+/* EXCEPTION for navbar - ALWAYS keep dark brown */
+nav.bg-slate-900,
+nav .bg-slate-900 {
+    background-color: rgba(61, 32, 35, 0.95) !important;
+    color: #FFFFFF !important;
+}
+
+/* EXCEPTION for messages.html body - keep light */
+body.bg-slate-950 {
+    background-color: var(--batik-cream) !important;
+}
+
+/* Messages page containers (not navbar) */
+.bg-slate-900.rounded-2xl,
+div.bg-slate-900 {
+    background-color: #FFFFFF !important;
+    color: #2d1810 !important;
+}
+
+.bg-slate-800:not(nav):not(nav *):not(nav a) {
+    background-color: var(--batik-beige) !important;
+    color: #2d1810 !important;
 }
 
 .bg-slate-700 {
     background-color: #d4c4b0 !important; /* Slightly darker beige */
-    color: var(--batik-dark) !important;
+    color: #2d1810 !important;
 }
 
 .bg-slate-700\/50 {
@@ -141,11 +230,13 @@ nav a:hover:not(.gradient-bg) {
 /* Ensure all headings are very dark and visible */
 h1, h2, h3, h4, h5, h6 {
     color: #2d1810 !important;
+    background-color: transparent !important;
 }
 
 /* Ensure all paragraph text is dark and readable */
 p {
     color: #3d2023 !important;
+    background-color: transparent !important;
 }
 
 /* Ensure div text is dark */
@@ -156,6 +247,7 @@ div {
 /* Ensure span text is dark */
 span {
     color: #3d2023 !important;
+    background-color: transparent !important;
 }
 
 /* Ensure links are visible */
@@ -239,29 +331,34 @@ button.gradient-bg,
    REMOVE ALL PURPLE COLORS
    ======================================== */
 
-/* Replace purple-500 with batik brown */
+/* Replace ALL purple with batik brown */
 .bg-purple-500,
 .text-purple-500,
+.text-purple-400,
+.text-purple-300,
 .border-purple-500,
 .from-purple-500,
-.to-purple-500 {
+.to-purple-500,
+.via-purple-900\/10,
+.via-purple-900\/20,
+.from-purple-900,
+.from-purple-900\/60,
+.hover\:text-purple-400:hover,
+.hover\:text-purple-300:hover {
     background-color: var(--batik-brown) !important;
     color: var(--batik-brown) !important;
     border-color: var(--batik-brown) !important;
 }
 
-.text-purple-400,
-.hover\:text-purple-400:hover,
-.text-purple-300,
-.hover\:text-purple-300:hover {
-    color: var(--batik-medium) !important;
-}
-
+/* Purple backgrounds with transparency */
 .bg-purple-500\/10,
-.bg-purple-500\/20 {
-    background-color: rgba(122, 71, 16, 0.15) !important;
+.bg-purple-500\/20,
+.bg-purple-500\/90 {
+    background-color: rgba(187, 138, 90, 0.15) !important;
+    color: #2d1810 !important;
 }
 
+/* Purple borders with transparency */
 .border-purple-500\/20,
 .border-purple-500\/30 {
     border-color: rgba(122, 71, 16, 0.3) !important;
@@ -287,6 +384,65 @@ button.gradient-bg,
 
 .hover\:file\:bg-purple-600:hover::file-selector-button {
     background-color: #6a3a0e !important;
+}
+
+/* Avatar borders - NO PURPLE */
+.border-purple-500,
+img.border-purple-500,
+img.border-2.border-purple-500 {
+    border-color: var(--batik-brown) !important;
+}
+
+/* Purple text colors */
+.text-purple-500,
+.text-purple-400,
+.text-purple-300 {
+    color: var(--batik-brown) !important;
+}
+
+/* Gradient backgrounds that contain purple */
+.bg-gradient-to-br.from-purple-900,
+.bg-gradient-to-br.via-purple-900 {
+    background: linear-gradient(135deg, rgba(187, 138, 90, 0.2) 0%, rgba(122, 71, 16, 0.1) 100%) !important;
+}
+
+/* Tab buttons - REMOVE PURPLE */
+.tab-btn.active {
+    background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%) !important;
+    color: white !important;
+}
+
+/* Category chips active state - NO PURPLE */
+.cat-chip.active {
+    background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%) !important;
+    color: white !important;
+}
+
+/* Upvoted state - CHANGE FROM PURPLE TO GOLD */
+.upvoted,
+.upvoted svg {
+    fill: var(--batik-gold) !important;
+    stroke: var(--batik-gold) !important;
+    color: var(--batik-gold) !important;
+}
+
+/* Loading spinner - CHANGE FROM PURPLE TO BROWN */
+.border-purple-500.border-t-transparent {
+    border-color: var(--batik-brown) !important;
+    border-top-color: transparent !important;
+}
+
+/* ANY element with purple class */
+[class*="purple"] {
+    color: var(--batik-brown) !important;
+}
+
+[class*="purple"][class*="bg"] {
+    background-color: rgba(187, 138, 90, 0.15) !important;
+}
+
+[class*="purple"][class*="border"] {
+    border-color: var(--batik-brown) !important;
 }
 
 /* ========================================
@@ -864,8 +1020,357 @@ section input[type="text"]::placeholder {
 /* Tab buttons */
 .tab-btn {
     color: #2d1810 !important;
+    background-color: transparent !important;
 }
 
 .tab-btn.active {
     color: white !important;
+    background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%) !important;
+}
+
+/* Category chips in discussion page */
+.cat-chip {
+    background-color: rgba(233, 219, 194, 0.6) !important;
+    color: #2d1810 !important;
+    border: 1px solid rgba(122, 71, 16, 0.3) !important;
+}
+
+.cat-chip.active {
+    background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%) !important;
+    color: white !important;
+}
+
+.cat-chip:hover {
+    background-color: rgba(212, 196, 176, 0.8) !important;
+    color: #2d1810 !important;
+}
+
+/* Force all category badge colors to brown */
+.bg-blue-500\/20,
+.bg-yellow-500\/20,
+.bg-green-500\/20,
+.bg-purple-500\/20,
+.bg-orange-500\/20 {
+    background-color: rgba(233, 219, 194, 0.8) !important;
+}
+
+.text-blue-300,
+.text-yellow-300,
+.text-green-300,
+.text-purple-300,
+.text-orange-300,
+.text-blue-400,
+.text-yellow-400,
+.text-green-400,
+.text-purple-400,
+.text-orange-400 {
+    color: #2d1810 !important;
+}
+
+.border-blue-500\/30,
+.border-yellow-500\/30,
+.border-green-500\/30,
+.border-purple-500\/30,
+.border-orange-500\/30 {
+    border-color: rgba(122, 71, 16, 0.3) !important;
+}
+
+/* ========================================
+   NAVBAR USER INFO - FORCE WHITE
+   ======================================== */
+
+/* User name in navbar - FORCE WHITE */
+#navName,
+nav #navName,
+nav span.text-sm,
+nav span.font-medium,
+nav span.text-sm.font-medium {
+    color: #FFFFFF !important;
+    font-weight: 600 !important;
+}
+
+/* StitchLink brand name - FORCE WHITE */
+nav span.text-lg.font-bold,
+nav a span.text-lg {
+    color: #FFFFFF !important;
+}
+
+/* All menu links - FORCE WHITE */
+nav a[href="dashboard.html"],
+nav a[href="messages.html"],
+nav a[href="competition.html"],
+nav a[href="discussion.html"] {
+    color: #FFFFFF !important;
+}
+
+/* Admin badge in navbar - WHITE on GOLD */
+#adminBadge,
+nav #adminBadge,
+nav .text-xs.text-purple-400,
+span.text-xs.font-semibold {
+    color: #FFFFFF !important;
+    background-color: #D4A027 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    font-weight: 700 !important;
+    display: inline-block !important;
+}
+
+/* Profile link hover state */
+nav a[href="profile.html"],
+nav a[href="profile.html"]:hover {
+    background-color: rgba(187, 138, 90, 0.2) !important;
+}
+
+nav a[href="profile.html"] *,
+nav a[href="profile.html"] span {
+    color: #FFFFFF !important;
+}
+
+/* Notification and message badges */
+#notifBadge,
+#msgBadge,
+.notification-badge {
+    background-color: #ef4444 !important;
+}
+
+/* Make absolutely sure navbar text is white */
+nav .hidden.sm\\:block span,
+nav .hidden.sm\\:block,
+nav .hidden.sm\\:block * {
+    color: #FFFFFF !important;
+}
+
+/* Menu items container */
+nav .hidden.md\\:flex,
+nav .hidden.md\\:flex *,
+nav .space-x-1,
+nav .space-x-1 * {
+    color: #FFFFFF !important;
+}
+
+/* Right side items */
+nav .flex.items-center.space-x-2,
+nav .flex.items-center.space-x-2 * {
+    color: #FFFFFF !important;
+}
+
+/* ========================================
+   MESSAGES PAGE - DARK TEXT ON LIGHT BG
+   ======================================== */
+
+/* Remove all dark boxes - make everything light */
+#conversationsList,
+#conversationsList *,
+.conv-item,
+.conv-item *,
+#searchResults,
+#searchResults *,
+.bg-slate-800.px-6,
+#activeChat,
+#activeChat * {
+    background-color: transparent !important;
+    color: #2d1810 !important;
+}
+
+/* Conversation items - NO dark background */
+.conv-item {
+    background-color: transparent !important;
+    border-bottom: 1px solid rgba(187, 138, 90, 0.2) !important;
+    padding: 12px 16px !important;
+}
+
+.conv-item:hover {
+    background-color: rgba(233, 219, 194, 0.5) !important;
+}
+
+.conv-item.active {
+    background-color: rgba(187, 138, 90, 0.15) !important;
+    border-left: 3px solid #BB8A5A !important;
+}
+
+/* All headings and text */
+body h2,
+body h3,
+body p,
+.text-lg,
+.text-sm,
+.text-base,
+#conversationsList h2,
+#conversationsList p,
+#activeChat h3,
+#activeChat p {
+    color: #2d1810 !important;
+}
+
+/* Chat area text */
+#noChatSelected,
+#noChatSelected * {
+    color: #3d2023 !important;
+}
+
+#noChatSelected .font-medium {
+    color: #2d1810 !important;
+}
+
+/* Search input in messages */
+#userSearchInput,
+#searchResults {
+    background-color: rgba(233, 219, 194, 0.6) !important;
+    color: #2d1810 !important;
+    border-color: rgba(187, 138, 90, 0.3) !important;
+}
+
+/* Placeholder colors */
+#userSearchInput::placeholder {
+    color: #7d6448 !important;
+}
+
+/* Empty state icon and text */
+#noChatSelected svg {
+    color: #BB8A5A !important;
+    stroke: #BB8A5A !important;
+}
+
+/* Chat header - NO dark background */
+.bg-slate-800.px-6 {
+    background-color: rgba(233, 219, 194, 0.3) !important;
+    border-bottom: 1px solid rgba(187, 138, 90, 0.2) !important;
+}
+
+#chatUserName,
+#chatUserName * {
+    color: #2d1810 !important;
+}
+
+/* Message bubbles */
+.msg-bubble {
+    color: #2d1810 !important;
+}
+
+/* Borders - remove dark borders */
+.border-slate-700,
+.border-slate-800,
+.border-b.border-slate-700,
+.border-b.border-slate-800 {
+    border-color: rgba(187, 138, 90, 0.2) !important;
+}
+
+/* Scrollbar for messages */
+#conversationsList::-webkit-scrollbar-track,
+#activeChat::-webkit-scrollbar-track {
+    background: rgba(233, 219, 194, 0.3) !important;
+}
+
+#conversationsList::-webkit-scrollbar-thumb,
+#activeChat::-webkit-scrollbar-thumb {
+    background: #BB8A5A !important;
+}
+
+#conversationsList::-webkit-scrollbar-thumb:hover,
+#activeChat::-webkit-scrollbar-thumb:hover {
+    background: #7A4710 !important;
+}
+
+/* User names in conversation list */
+.conv-item h3,
+.conv-item .font-medium,
+.conv-item .text-sm {
+    color: #2d1810 !important;
+}
+
+/* Time stamps */
+.conv-item .text-xs,
+.text-slate-400,
+.text-slate-500 {
+    color: #5d4428 !important;
+}
+
+/* ========================================
+   POST CARDS - FIX USERNAME VISIBILITY
+   ======================================== */
+
+/* Remove any dark background from post headers */
+.bg-slate-900 .flex.items-center,
+.bg-slate-800 .flex.items-center,
+.card-hover .flex.items-center {
+    background-color: transparent !important;
+}
+
+/* Username and metadata text - ALWAYS DARK */
+.post-card h3,
+.post-card span,
+.post-card p,
+.post-card .text-sm,
+.post-card .text-xs,
+.post-card .font-semibold,
+.post-card .font-medium,
+h4.font-semibold,
+h4.cursor-pointer {
+    color: #2d1810 !important;
+    background-color: transparent !important;
+}
+
+/* Username hover state - KEEP DARK (not purple) */
+h4.font-semibold.hover\\:text-purple-400:hover,
+.hover\\:text-purple-400:hover {
+    color: #7A4710 !important;
+    background-color: transparent !important;
+}
+
+/* Following button - should NOT cover username */
+.following-btn,
+button.following-btn,
+.bg-slate-600 {
+    background-color: rgba(187, 138, 90, 0.6) !important;
+    color: white !important;
+}
+
+/* Follow button gradient */
+button.gradient-bg {
+    background: linear-gradient(135deg, #BB8A5A 0%, #7A4710 100%) !important;
+    color: white !important;
+}
+
+/* User info container */
+.flex.items-center.space-x-3,
+.flex.items-start.space-x-3 {
+    background-color: transparent !important;
+}
+
+/* Username link/span - NO BACKGROUND BOX */
+a[href*="profile"] span,
+.font-semibold,
+.text-sm.font-semibold,
+h4,
+h4 * {
+    color: #2d1810 !important;
+    background-color: transparent !important;
+}
+
+/* Date/time text */
+.text-xs.text-slate-400,
+.text-xs.text-slate-500,
+p.text-xs {
+    color: #5d4428 !important;
+    background-color: transparent !important;
+}
+
+/* Post caption/description */
+.post-caption,
+.whitespace-pre-wrap,
+.mb-3 {
+    color: #2d1810 !important;
+    background-color: transparent !important;
+}
+
+/* Card hover - no background change on header */
+.card-hover:hover .flex.items-center {
+    background-color: transparent !important;
+}
+
+.card-hover:hover h4,
+.card-hover:hover p,
+.card-hover:hover span {
+    background-color: transparent !important;
 }
